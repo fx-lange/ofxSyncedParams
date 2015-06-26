@@ -12,29 +12,6 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
     }
 }
 
-
-std::string ofxSynchedParams::setFromOfParameterGroup ( ofParameterGroup & group ){
-    groupCopy = group;
-    groupPtr = &groupCopy;
-    
-    
-    std::string str = parseParamGroup(groupCopy, false).toStyledString();
-    
-    //s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
-    
-    // remove spaces and new lines...
-    // change quotes to nicer
-    std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
-    str.erase(end_pos, str.end());
-    end_pos = std::remove(str.begin(), str.end(), '\n');
-    str.erase(end_pos, str.end());
-//    ofLogNotice("before") << str;
-//    myReplace(str, "\"", "\\\"");
-//    ofLogNotice("after") << str;
-    return str;
-}
-
-
 void PrintJSONValue( const Json::Value &val )
 {
     if( val.isString() ) {
@@ -80,30 +57,40 @@ bool PrintJSONTree( const Json::Value &root, unsigned short depth /* = 0 */)
     return true;
 }
 
-void ofxSynchedParams::setParamFromJson(ofxJSONElement json, ofParameterGroup * groupPtr){
-//	ofxJSONElement subElement = json[json.getMemberNames()[0]]; //skip root group
-//	ofAbstractParameter * param = NULL;
-	ofParameterGroup group = *groupPtr;
-//	 while(group.size() == 1){ //TODO why was this not working?!
-//		 ofLogNotice("skip") << group.getName();
-//		 group = group.getGroup(0);
-//	}
+ofxSynchedParams::ofxSynchedParams(){
+	bSetup = false;
+	rootGroup = NULL;
+}
+
+void ofxSynchedParams::setupFromGui(ofxPanel & gui){
+	setupFromParamGroup(((ofParameterGroup&)gui.getParameter()));
+}
+
+void ofxSynchedParams::setupFromParamGroup(ofParameterGroup & group){
+	rootGroup = &group;
+}
+
+std::string ofxSynchedParams::parseParamsToJson ( ){
+	if(!bSetup){
+		ofLogWarning("ofxSynchedParams::parseParamsToJson") << "parsing not possible - call setup first";
+		return "";
+	}
+
+    std::string str = parseParamGroup(*rootGroup, false).toStyledString();
+
+    // remove spaces and new lines...
+    std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
+    str.erase(end_pos, str.end());
+    end_pos = std::remove(str.begin(), str.end(), '\n');
+    str.erase(end_pos, str.end());
+    return str;
+}
+
+void ofxSynchedParams::setParamFromJson(ofxJSONElement json){
+	ofParameterGroup group = *rootGroup; //TODO why pointer -> object and not pointer -> pointer?
     ofLogNotice("use") << group.getName();
-//	while(subElement.isObject() && !subElement.isNull()){
-//		ofLogNotice("sub element") << subElement.getRawString();
-//		string childName = subElement.getMemberNames()[0];
-//		ofLogNotice("child name") << childName;
-////		ofLogNotice("child") << subElement[childName].toStyledString();
-//
-//		subElement = subElement[childName];
-//		if(subElement.isObject()){
-////			param = &((ofParameterGroup*)param)->get(childName); -> crash
-//			group = group.getGroup(childName);
-//		}else{
-//			param = &(group.get(childName));
-//		}
-//	}
-	ofxJSONElement path(json["path"]);
+
+    ofxJSONElement path(json["path"]);
 	if(path.isArray()){
 		ofLogNotice() << "path array found - ";
 		for(int i=1;i<(int)path.size();++i){ //skip the first one
@@ -122,12 +109,8 @@ void ofxSynchedParams::setParamFromJson(ofxJSONElement json, ofParameterGroup * 
 	std::string type = param.type();
 
 	if(type==typeid(ofParameter<float>).name()){
-
 		ofParameter<float> & p = param.cast<float>();
-//				p.disableEvents(); //not working with a gui - need to be done somehow else TODO
 		p = json["value"].asFloat();
-//				p.enableEvents();
-
 	}
 	else if(type==typeid(ofParameter<ofColor>).name()){
 		ofParameter<ofColor> p = param.cast<ofColor>();
@@ -147,6 +130,7 @@ void ofxSynchedParams::setParamFromJson(ofxJSONElement json, ofParameterGroup * 
 		}
 	}
 
+	//TODO boolean & integer at least
 }
 
 Json::Value ofxSynchedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
@@ -256,6 +240,3 @@ Json::Value ofxSynchedParams::parseParamGroup(ofParameterGroup & _parameters, bo
         return json;
     }
 }
-
-ofParameterGroup internalCopy;
-ofParameterGroup * copy;

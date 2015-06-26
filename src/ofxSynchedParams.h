@@ -6,16 +6,21 @@
 
 #include "ofMain.h"
 #include "ofxJSON.h"
+#include "ofxGui.h"
 #include  "json.h"
 
 class ofxSynchedParams {
 public:
-    string setFromOfParameterGroup ( ofParameterGroup & group );
-    void setParamFromJson( ofxJSONElement json, ofParameterGroup * group);
+	ofxSynchedParams();
+
+	void setupFromGui(ofxPanel & gui);
+	void setupFromParamGroup(ofParameterGroup & group);
+
+	string parseParamsToJson ( );
+	void setParamFromJson( ofxJSONElement json );
 
 protected:
-    Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup);
-    
-    ofParameterGroup groupCopy;
-    ofParameterGroup * groupPtr;
+    Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup); //TODO use pointer
+    ofParameterGroup * rootGroup;
+    bool bSetup;
 };
