@@ -1,13 +1,8 @@
 //
-//  datGuiController.cpp
-//  example-ofxCEF
-//
-//  Created by zach on 5/7/15.
-//
-//
+//  ofxSynchedParams
+//  based on datGuiController originally by ofZach
 
-#include "../../../../addons/ofxSynchedParams/datGuiController.h"
-
+#include "ofxSynchedParams.h"
 
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr){
     size_t pos = 0;
@@ -18,7 +13,7 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 }
 
 
-std::string datGuiController::setFromOfParameterGroup ( ofParameterGroup & group ){
+std::string ofxSynchedParams::setFromOfParameterGroup ( ofParameterGroup & group ){
     groupCopy = group;
     groupPtr = &groupCopy;
     
@@ -85,7 +80,7 @@ bool PrintJSONTree( const Json::Value &root, unsigned short depth /* = 0 */)
     return true;
 }
 
-void datGuiController::setParamFromJson(ofxJSONElement json, ofParameterGroup * groupPtr){
+void ofxSynchedParams::setParamFromJson(ofxJSONElement json, ofParameterGroup * groupPtr){
 //	ofxJSONElement subElement = json[json.getMemberNames()[0]]; //skip root group
 //	ofAbstractParameter * param = NULL;
 	ofParameterGroup group = *groupPtr;
@@ -154,131 +149,7 @@ void datGuiController::setParamFromJson(ofxJSONElement json, ofParameterGroup * 
 
 }
 
-void datGuiController::setValuesFromJson( ofxJSONElement json, ofParameterGroup * subGroup, bool bInnerGroup ){
-    
-   
-    
-    string groupName = subGroup->getName();
-    
-    ofxJSONElement subElement;
-    
-    if (!bInnerGroup){
-        subElement = json[groupName];
-    } else {
-        subElement = json; 
-    }
-    
-    cout << "-----------------------" << endl;
-    cout << subElement.getRawString() << endl;
-    cout << subGroup->toString() << endl;
-    cout << "-----------------------" << endl;
-    
-    for(int i=0; i < subGroup->size(); i++){
-        
-		string type = subGroup->getType(i);
-        
-		if(type==typeid(ofParameter<int>).name()){
-			
-            string name = subGroup->getName(i);
-            int val = subElement[name].asInt();
-            ofParameter<int> p = subGroup->getInt(i);
-            p.disableEvents();
-            p = val;
-            p.enableEvents();
-
-        } else if(type==typeid(ofParameter<float>).name()){
-			ofParameter<float> p = subGroup->getFloat(i);
-            string name = subGroup->getName(i);
-            float val = subElement[name].asFloat();
-            p.disableEvents();
-            p = val;
-            p.enableEvents();
-
-		} else if(type==typeid(ofParameter<bool>).name()){
-			ofParameter<bool> p = subGroup->getBool(i);
-            string name = subGroup->getName(i);
-            float val = subElement[name].asBool();
-            p.disableEvents();
-            p = val;
-            p.enableEvents();
-            
-		} else if(type==typeid(ofParameter<ofColor>).name()){
-			ofParameter<ofColor> p = subGroup->getColor(i);
-            string name = subGroup->getName(i);
-            ofxJSONElement elem = subElement[name];
-            if (elem.isArray()){ // get out RGBA
-                float r = elem[0].asInt();
-                float g = elem[1].asInt();
-                float b = elem[2].asInt();
-                p.set( ofColor(r,g,b));
-            } else {
-                string hex = subElement[name].asString();
-                hex.erase(0, 1);
-                unsigned int color = strtoul(hex.c_str(), NULL, 16);
-                ofColor c;
-                c.setHex(color);
-                
-                p.set(c);
-                
-            }
-            cout << "array ? " << elem.isArray() <<  " " << elem << endl;
-            
-            //float val = subElement[name]
-            
-		}
-        
-        /*eelse if(type==typeid(ofParameter<ofVec2f>).name()){
-			ofParameter<ofVec2f> p = subGroup.getVec2f(i);
-            
-		}else if(type==typeid(ofParameter<ofVec3f>).name()){
-			ofParameter<ofVec3f> p = subGroup.getVec3f(i);
-            
-		}else if(type==typeid(ofParameter<ofVec4f>).name()){
-			ofParameter<ofVec4f> p = subGroup.getVec4f(i);
-            
-		}else if(type==typeid(ofParameter<ofColor>).name()){
-			ofParameter<ofColor> p = subGroup.getColor(i);
-            
-		}else if(type==typeid(ofParameter<ofShortColor>).name()){
-			ofParameter<ofShortColor> p = subGroup.getShortColor(i);
-            
-		}else if(type==typeid(ofParameter<ofFloatColor>).name()){
-			ofParameter<ofFloatColor> p = subGroup.getFloatColor(i);
-            
-		}else if(type==typeid(ofParameter<string>).name()){
-            ofParameter<string> p = subGroup.getString(i);
-            
-		}
-         */
-        else if(type==typeid(ofParameterGroup).name()){
-			ofParameterGroup p = subGroup->getGroup(i);
-            string name =subGroup->getName(i);
-            setValuesFromJson(subElement[name], &p, true);
-        }else{
-            //ofLogWarning() << "ofxBaseGroup; no control for parameter of type " << type;
-		}
-    }
-    
-    
-    
-}
-
-
-
-void datGuiController::valuesChanged(string valuesFromJavascript){
-    ofxJSONElement result(valuesFromJavascript);
-    
-    setValuesFromJson (result, groupPtr, false);
-    
-}
-
-
-
-
-
-
-
-Json::Value datGuiController::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
+Json::Value ofxSynchedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
     
     
     string name = _parameters.getName();
@@ -385,18 +256,6 @@ Json::Value datGuiController::parseParamGroup(ofParameterGroup & _parameters, bo
         return json;
     }
 }
-
-
-
-//void datGuiController::toJson(){
-//    
-//    parseParamGroup( groupCopy);
-//    
-//    
-//}
-//void datGuiController::fromJson(string json){
-//    
-//}
 
 ofParameterGroup internalCopy;
 ofParameterGroup * copy;
