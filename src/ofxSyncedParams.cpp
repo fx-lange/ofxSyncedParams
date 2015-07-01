@@ -1,8 +1,8 @@
 //
-//  ofxSynchedParams
+//  ofxSyncedParams
 //  based on datGuiController originally by ofZach
 
-#include "ofxSynchedParams.h"
+#include "../../ofxSyncedParams/src/ofxSyncedParams.h"
 
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr){
     size_t pos = 0;
@@ -57,22 +57,22 @@ bool PrintJSONTree( const Json::Value &root, unsigned short depth /* = 0 */)
     return true;
 }
 
-ofxSynchedParams::ofxSynchedParams(){
+ofxSyncedParams::ofxSyncedParams(){
 	bSetup = false;
 	rootGroup = NULL;
 }
 
-void ofxSynchedParams::setupFromGui(ofxPanel & gui){
+void ofxSyncedParams::setupFromGui(ofxPanel & gui){
 	setupFromParamGroup(((ofParameterGroup&)gui.getParameter()));
 }
 
-void ofxSynchedParams::setupFromParamGroup(ofParameterGroup & group){
+void ofxSyncedParams::setupFromParamGroup(ofParameterGroup & group){
 	rootGroup = &group;
 	bSetup = true;
 	//TODO error checking?
 }
 
-std::string ofxSynchedParams::parseParamsToJson ( ){
+std::string ofxSyncedParams::parseParamsToJson ( ){
 	if(!bSetup){
 		ofLogWarning("ofxSynchedParams::parseParamsToJson") << "parsing not possible - call setup first";
 		return "";
@@ -88,7 +88,7 @@ std::string ofxSynchedParams::parseParamsToJson ( ){
     return str;
 }
 
-void ofxSynchedParams::setParamFromJson(ofxJSONElement json){
+void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 	ofParameterGroup group = *rootGroup; //TODO why pointer -> object and not pointer -> pointer?
     ofLogNotice("use") << group.getName();
 
@@ -113,6 +113,12 @@ void ofxSynchedParams::setParamFromJson(ofxJSONElement json){
 	if(type==typeid(ofParameter<float>).name()){
 		ofParameter<float> & p = param.cast<float>();
 		p = json["value"].asFloat();
+	}else if(type==typeid(ofParameter<int>).name()){
+		ofParameter<int> & p = param.cast<int>();
+		p = json["value"].asInt();
+	}else if(type==typeid(ofParameter<bool>).name()){
+		ofParameter<bool> & p = param.cast<bool>();
+		p = json["value"].asBool();
 	}
 	else if(type==typeid(ofParameter<ofColor>).name()){
 		ofParameter<ofColor> p = param.cast<ofColor>();
@@ -135,7 +141,7 @@ void ofxSynchedParams::setParamFromJson(ofxJSONElement json){
 	//TODO boolean & integer at least
 }
 
-Json::Value ofxSynchedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
+Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
     
     
     string name = _parameters.getName();

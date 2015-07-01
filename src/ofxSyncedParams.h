@@ -1,5 +1,5 @@
 //
-//  ofxSynchedParams
+//  ofxSyncedParams
 //  based on datGuiController originally by ofZach
 
 #pragma once
@@ -9,15 +9,15 @@
 #include "ofxGui.h"
 #include  "json.h"
 
-class ofxSynchedParams {
+class ofxSyncedParams {
 public:
-	ofxSynchedParams();
+	ofxSyncedParams();
 
 	void setupFromGui(ofxPanel & gui);
 	void setupFromParamGroup(ofParameterGroup & group);
 
 	string parseParamsToJson ( );
-	void setParamFromJson( ofxJSONElement json );
+	void updateParamFromJson( ofxJSONElement json );
 
 protected:
     Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup); //TODO use pointer
