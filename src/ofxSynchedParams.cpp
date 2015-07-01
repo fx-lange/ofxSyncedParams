@@ -68,6 +68,8 @@ void ofxSynchedParams::setupFromGui(ofxPanel & gui){
 
 void ofxSynchedParams::setupFromParamGroup(ofParameterGroup & group){
 	rootGroup = &group;
+	bSetup = true;
+	//TODO error checking?
 }
 
 std::string ofxSynchedParams::parseParamsToJson ( ){
