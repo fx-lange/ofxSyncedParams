@@ -19,8 +19,12 @@ public:
 	string parseParamsToJson ( );
 	void updateParamFromJson( ofxJSONElement json );
 
+	ofEvent<std::string> paramChangedE;
 protected:
-    Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup); //TODO use pointer
-    ofParameterGroup * rootGroup;
     bool bSetup;
+    ofParameterGroup * rootGroup;
+
+    Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup); //TODO use pointer
+    std::string changedParamInJson;
+    void parameterChanged( ofAbstractParameter & parameter);
 };
