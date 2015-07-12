@@ -11,4 +11,4 @@ Dependencies
 
 Credits
 --------
-based on datGuiController originally by ofZach
+Based on datGuiController by [ofZach](https://github.com/ofZach). Thanks for sharing!
