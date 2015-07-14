@@ -5,18 +5,10 @@ string jsonString = "";
 bool onUpdate = false;
 bool eInitRequest = false;
 
+ofxJSONElement paramUpdate;
+
 void ofDatGuiApp::setup() {
-	setupGui();
-
-	//web socket server
-	ofxLibwebsockets::ServerOptions options = ofxLibwebsockets::defaultServerOptions();
-	options.port = 9092;
-	options.bUseSSL = false; // you'll have to manually accept this self-signed cert if 'true'!
-	bSetup = server.setup( options );
-	server.addListener(this);
-}
-
-void ofDatGuiApp::setupGui(){
+	//create GUI group
 	gui.setup("gui","settings.xml",50,50);
 	group1.setName("group1");
 	group1.add(intParam1.set("myInt",100,0,100));
@@ -28,13 +20,23 @@ void ofDatGuiApp::setupGui(){
 	group2.add(floatParam2.set("myFloat",0,0,10));
 	group2.add(toggle2.set("myToggle",true));
 	group21.setName("group2a");
-	group21.add(color1.set("myColor",ofColor::oliveDrab,ofColor::black,ofColor::white));
+	group21.add(color1.set("myColor",ofColor::oliveDrab,ofColor(0,0),ofColor(255,255)));
 	group2.add(group21);
 	gui.add(group2);
 	gui.loadFromFile("settings.xml");
 
+	//setup sync for GUI
 	paramSync.setupFromGui(gui);
+
+	//listen to parameter changes from ofxSynchedParams
 	ofAddListener(paramSync.paramChangedE,this,&ofDatGuiApp::parameterChanged);
+
+	//setup web socket server
+	ofxLibwebsockets::ServerOptions options = ofxLibwebsockets::defaultServerOptions();
+	options.port = 9092;
+	options.bUseSSL = false; // you'll have to manually accept this self-signed cert if 'true'!
+	server.setup( options );
+	server.addListener(this);
 }
 
 void ofDatGuiApp::parameterChanged( std::string & paramAsJsonString ){

@@ -7,12 +7,10 @@
 class ofDatGuiApp : public ofBaseApp {
 public:
 	void setup();
-	void setupGui();
-
-	void parameterChanged( std::string & );
-
 	void update();
 	void draw();
+
+	void parameterChanged( std::string & );
 
 	//----
 	ofxPanel gui;
@@ -26,8 +24,6 @@ public:
 
 	//--- WebSocket
     ofxLibwebsockets::Server server;
-    ofxJSONElement paramUpdate;
-    bool bSetup;
 
     // websocket methods
 	void onMessage( ofxLibwebsockets::Event& args );
