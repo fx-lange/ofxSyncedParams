@@ -11,4 +11,5 @@ Dependencies
 
 Credits
 --------
-Based on datGuiController by [ofZach](https://github.com/ofZach). Thanks for sharing!
+* Based on datGuiController by [ofZach](https://github.com/ofZach). Thanks for sharing!
+* Using a modified version of [guiGlue.js](https://github.com/dmvaldman/guiGlue) by David Valdman.
