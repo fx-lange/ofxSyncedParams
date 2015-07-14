@@ -7,6 +7,7 @@ bool eInitRequest = false;
 
 ofxJSONElement paramUpdate;
 
+//--------------------------------------------------------------
 void ofDatGuiApp::setup() {
 	//create GUI group
 	gui.setup("gui","settings.xml",50,50);
@@ -35,16 +36,19 @@ void ofDatGuiApp::setup() {
 	ofxLibwebsockets::ServerOptions options = ofxLibwebsockets::defaultServerOptions();
 	options.port = 9092;
 	options.bUseSSL = false; // you'll have to manually accept this self-signed cert if 'true'!
+	options.documentRoot = ofToDataPath("web"); // that is the default anyway but so you know how to change it :)
 	server.setup( options );
 	server.addListener(this);
 }
 
+//--------------------------------------------------------------
 void ofDatGuiApp::parameterChanged( std::string & paramAsJsonString ){
 	ofLogVerbose("kms145App::parameterChanged");
 	if(!onUpdate)
 		server.send( paramAsJsonString );
 }
 
+//--------------------------------------------------------------
 void ofDatGuiApp::update() {
 	//webUi
 	if(eInitRequest){
@@ -60,8 +64,19 @@ void ofDatGuiApp::update() {
 	}
 }
 
+//--------------------------------------------------------------
 void ofDatGuiApp::draw() {
 	gui.draw();
+}
+
+//--------------------------------------------------------------
+void ofDatGuiApp::mousePressed(int x, int y, int button){
+    string url = "http";
+    if ( server.usingSSL() ){
+        url += "s";
+    }
+    url += "://localhost:" + ofToString( server.getPort() );
+    ofLaunchBrowser(url);
 }
 
 //--------------------------------------------------------------
