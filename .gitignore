@@ -1,3 +1,4 @@
-*/bin/*
-*/obj/*
+/*/bin/*
+!/*/bin/data/
+/*/obj/*
 */.settings/*

@@ -1,0 +1,16 @@
+<gui>
+	<group1>
+		<myInt>100</myInt>
+		<myFloat>0.5</myFloat>
+		<myToggle>0</myToggle>
+	</group1>
+	<group2>
+		<myInt>0</myInt>
+		<myFloat>0</myFloat>
+		<myToggle>1</myToggle>
+		<group2a>
+			<myColor>107, 142, 35, 255</myColor>
+		</group2a>
+	</group2>
+<gui/>
+</gui>
