@@ -39,14 +39,14 @@ std::string ofxSyncedParams::parseParamsToJson ( ){
 
 void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 	ofParameterGroup group = *rootGroup; //TODO why pointer -> object and not pointer -> pointer?
-    ofLogNotice("use") << group.getName();
+//    ofLogNotice("use") << group.getName();
 
     ofxJSONElement path(json["path"]);
 	if(path.isArray()){
-		ofLogNotice() << "path array found - ";
+//		ofLogNotice() << "path array found - ";
 		for(int i=1;i<(int)path.size();++i){ //skip the first one
 			std::string groupName = path[i].asString();
-			ofLogNotice() << groupName;
+//			ofLogNotice() << groupName;
 			group = group.getGroup(groupName);
 		}
 	}else{
@@ -86,8 +86,6 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 			p.set(c);
 		}
 	}
-
-	//TODO boolean & integer at least
 }
 
 Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
@@ -113,8 +111,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
             
-            cout << "INT! " << p.getName() << endl;
-            
             //valToAdd[ p.getName() ] = valToAddSub;
             //jsonArray.append(valToAdd);
 		}else if(type==typeid(ofParameter<float>).name()){
@@ -129,9 +125,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             //valToAddSub["step"] = 0.1; //(p.getMax()-p.getMin())/300.0; // 300 steps?
             valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
-            
-            cout << "FLOAT! " << p.getName() << endl;
-            
             
 		}else if(type==typeid(ofParameter<bool>).name()){
 			ofParameter<bool> p = _parameters.getBool(i);
