@@ -81,7 +81,7 @@ void ofDatGuiApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofDatGuiApp::onMessage( ofxLibwebsockets::Event& args ){
-    ofLogVerbose("kms145App::onMessage");
+    ofLogNotice("kms145App::onMessage");
 
     // trace out string messages or JSON messages!
     if ( !args.json.isNull() ){
