@@ -103,23 +103,8 @@ function guiGlue(paramsGUI, optionsGUI){
             // pass all changes through to OF 
             if (handle){
 
-                //building up the parent path upwards
-                /*var myObj = {};
-                var pathObj = myObj;
-                var parent = folder;
-                while(parent.name !== undefined){
-                    myObj[parent.name] = {};
-                    myObj = myObj[parent.name];
-                    parent = parent.parent;
-                }
-
-                
-                var f = function(val){
-                    myObj[key] = val;
-                    var jsonString = JSON.stringify(pathObj);
-                    console.log(jsonString);
-                    socket.send(jsonString);
-                }*/
+                //listen for sync in both directions
+                handle.listen(true);
 
                 var myObj = {};
                 var path = [];

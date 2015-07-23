@@ -108,7 +108,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             valToAddSub["value"] = p.get();
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
-            valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
             
             //valToAdd[ p.getName() ] = valToAddSub;
@@ -122,8 +121,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
             
-            //valToAddSub["step"] = 0.1; //(p.getMax()-p.getMin())/300.0; // 300 steps?
-            valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
             
 		}else if(type==typeid(ofParameter<bool>).name()){
@@ -132,7 +129,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             Json::Value valToAddSub;
             valToAddSub["type"] = "bool";
             valToAddSub["value"] = p.get();
-            valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
 
 		}else if(type==typeid(ofParameter<ofVec2f>).name()){
@@ -157,7 +153,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             
             valToAddSub["type"] = "color";
             valToAddSub["value"] = jsonArray;
-            valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
             
 
