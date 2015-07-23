@@ -9,7 +9,7 @@ Examples
 TODO
 -----
 * README ....
-* -> Issues
+* [Issues](https://github.com/fx-lange/ofxSyncedParams/issues)
 * add p5.js example
 
 Dependencies
