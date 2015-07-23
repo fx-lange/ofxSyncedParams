@@ -1,13 +1,21 @@
 # ofxSyncedParams
 
+Examples
+---------
+* example_datGui: oF gui app + remote webUI (datGui)
+* example_remoteUI: oF app as a remote UI (work in progress)
+
+
 TODO
 -----
 * README ....
-* add datGui example
+* -> Issues
 * add p5.js example
 
 Dependencies
 ------------
+* ofxLibwebsockets
+* ofxJSON
 
 Credits
 --------
