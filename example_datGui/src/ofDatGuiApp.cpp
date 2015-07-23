@@ -43,7 +43,7 @@ void ofDatGuiApp::setup() {
 
 //--------------------------------------------------------------
 void ofDatGuiApp::parameterChanged( std::string & paramAsJsonString ){
-	ofLogVerbose("kms145App::parameterChanged");
+	ofLogVerbose("ofDatGuiApp::parameterChanged");
 	if(!onUpdate)
 		server.send( paramAsJsonString );
 }
@@ -81,11 +81,11 @@ void ofDatGuiApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofDatGuiApp::onMessage( ofxLibwebsockets::Event& args ){
-    ofLogNotice("kms145App::onMessage");
+    ofLogNotice("ofDatGuiApp::onMessage");
 
     // trace out string messages or JSON messages!
     if ( !args.json.isNull() ){
-    	ofLogVerbose("kms145App::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
+    	ofLogVerbose("ofDatGuiApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
 
         if(args.json["type"]=="initRequest"){
         	eInitRequest = true;

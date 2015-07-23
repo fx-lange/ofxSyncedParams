@@ -10,6 +10,7 @@ ofxSyncedParams::ofxSyncedParams(){
 }
 
 void ofxSyncedParams::setupFromGui(ofxPanel & gui){
+	//TODO store a pointer to the gui?!
 	setupFromParamGroup(((ofParameterGroup&)gui.getParameter()));
 }
 
@@ -103,11 +104,10 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 			
             ofParameter<int> p = _parameters.getInt(i);
             Json::Value valToAddSub;
-            valToAddSub["display"] = "range";
+            valToAddSub["type"] = "int";
             valToAddSub["value"] = p.get();
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
-            valToAddSub["step"] = 1;
             valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
             
@@ -117,7 +117,7 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 			 
             ofParameter<float> p = _parameters.getFloat(i);
             Json::Value valToAddSub;
-            valToAddSub["display"] = "range";
+            valToAddSub["type"] = "float";
             valToAddSub["value"] = p.get() + 0.0001;     // ok it's unhappy if see an "int" so this is a hack...
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
@@ -130,7 +130,7 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 			ofParameter<bool> p = _parameters.getBool(i);
             
             Json::Value valToAddSub;
-            valToAddSub["display"] = "bool";
+            valToAddSub["type"] = "bool";
             valToAddSub["value"] = p.get();
             valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;
@@ -155,7 +155,7 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             jsonArray.append(temp.g);
             jsonArray.append(temp.b);
             
-            valToAddSub["display"] = "color";
+            valToAddSub["type"] = "color";
             valToAddSub["value"] = jsonArray;
             valToAddSub["listen"] = true;
             json[ p.getName() ] = valToAddSub;

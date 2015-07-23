@@ -73,14 +73,15 @@ function guiGlue(paramsGUI, optionsGUI){
             var handle;
             params[key] = options.value;
 
-            var display = options.display || '';
+            //type almost equals type (except float&int)
+            var type = options.type || '';
 
-            switch (display){
-                case 'range':
-                    if (options.step)
-                        handle = folder.add(params, key, options.min, options.max).step(options.step);
-                    else
-                        handle = folder.add(params, key, options.min, options.max);
+            switch (type){
+                case 'int':
+                    handle = folder.add(params, key, options.min, options.max).step(1);
+                    break;
+                case 'float':
+                    handle = folder.add(params, key, options.min, options.max);
                     break;
                 case 'selector':
                     handle = folder.add(params, key, options.choices);
