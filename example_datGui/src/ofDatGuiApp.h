@@ -4,6 +4,8 @@
 #include "ofMain.h"
 #include "ofxLibwebsockets.h"
 
+using namespace std;
+
 class ofDatGuiApp : public ofBaseApp {
 public:
 	void setup();
