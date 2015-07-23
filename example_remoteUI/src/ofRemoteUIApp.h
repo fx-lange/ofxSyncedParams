@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "ofxLibwebsockets.h"
+#include "ofxJSON.h"
 
 class ofRemoteUIApp : public ofBaseApp{
 

@@ -6,8 +6,25 @@ void ofRemoteUIApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
     // client.connect("echo.websocket.org");
 
-    // 4 - connect
-    client.connect( "localhost", 9092 );
+    // 1 - get default options
+	ofxLibwebsockets::ClientOptions options = ofxLibwebsockets::defaultClientOptions();
+
+	// 2 - set basic params
+	options.host = "localhost";
+	options.port = 9092;
+
+	// 3 - set keep alive params
+	// BIG GOTCHA: on BSD systems, e.g. Mac OS X, these time params are system-wide
+	// ...so ka_time just says "check if alive when you want" instead of "check if
+	// alive after X seconds"
+	// Note: some have had issues with only setting one of these; may be an
+	// all-or-nothing type option!
+	options.ka_time     = 1;
+	options.ka_probes   = 1;
+	options.ka_interval = 1;
+
+	// 4 - connect
+	client.connect(options);
     ofSetLogLevel(OF_LOG_ERROR);
 
     client.addListener(this);
@@ -57,8 +74,11 @@ void ofRemoteUIApp::onBroadcast( ofxLibwebsockets::Event& args ){
 //--------------------------------------------------------------
 void ofRemoteUIApp::keyPressed(int key){
 
-    client.send("Hello");
-    cout << "sending hello" <<endl;
+	Json::Value json;
+	json["type"] = "initRequest";
+	string jsonString = json.toStyledString();
+    client.send(jsonString);
+    ofLogNotice("keyPressed") << "send:\n" << jsonString;
 }
 
 //--------------------------------------------------------------
