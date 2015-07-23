@@ -19,7 +19,7 @@ void ofxSyncedParams::setupFromParamGroup(ofParameterGroup & group){
 	bSetup = true;
 	//TODO error checking?
 
-	ofAddListener(group.parameterChangedE,this,&ofxSyncedParams::parameterChanged);
+	ofAddListener(group.parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
 }
 
 std::string ofxSyncedParams::parseParamsToJson ( ){
