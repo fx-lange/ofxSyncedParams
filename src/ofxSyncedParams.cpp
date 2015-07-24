@@ -226,3 +226,74 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	changedParamInJson = json.toStyledString();
 	ofNotifyEvent(paramChangedE,changedParamInJson);
 }
+
+ofParameterGroup & ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
+	ofParameterGroup * groupOwner = new ofParameterGroup();
+	//TODO needs refactoring! don't like it and memory leak ...
+	unfurl(jsonInit,*groupOwner);
+
+	ofParameterGroup & rootGrpRef = (ofParameterGroup&)groupOwner->get(0);
+	rootGroup = &rootGrpRef;
+	//TODO same here - pointer <-> reference madness
+
+	return rootGrpRef;
+}
+
+void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
+	ofLogNotice("ofRemoteUIApp::unfurl") << obj.toStyledString();
+
+	std::vector<std::string> members = obj.getMemberNames();
+	for(size_t i=0;i<members.size();++i){
+
+		std::string objName = members[i];
+		Json::Value subObj = obj.get(objName,"");
+
+		if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
+			ofLogVerbose() << "is leaf -> is a parameter";
+			//add to group
+			addToGroup(objName,subObj,parentGroup);
+		}else{
+			ofLogVerbose() << "is a parameter group";
+			ofParameterGroup subGroup;
+			subGroup.setName(objName);
+			unfurl(subObj,subGroup);
+			parentGroup.add(subGroup);
+		}
+	}
+}
+
+void ofxSyncedParams::addToGroup(string & name, Json::Value & obj, ofParameterGroup & group){
+	string type = obj["type"].asString();
+
+	if(type == "int"){
+		ofParameter<int> param;
+		param.setName(name);
+		param.setMin(obj["min"].asInt());
+		param.setMax(obj["max"].asInt());
+		param.set(obj["value"].asInt());
+		group.add(param);
+	}else if(type == "float"){
+		ofParameter<float> param;
+		param.setName(name);
+		param.setMin(obj["min"].asInt());
+		param.setMax(obj["max"].asInt());
+		param.set(obj["value"].asFloat());
+		group.add(param);
+	}else if(type == "bool"){
+		ofParameter<bool> param;
+		param.setName(name);
+		param.set(obj["value"].asFloat());
+		group.add(param);
+	}else if(type == "color"){
+		ofParameter<ofColor> param;
+		param.setName(name);
+		ofColor color;
+		for(int i=0;i<3;++i){
+			color[i] = obj["value"][i].asInt();
+		}
+		param.set(color);
+		param.setMin(ofColor(0,0));
+		param.setMax(ofColor(255,255));
+		group.add(param);
+	}
+}
