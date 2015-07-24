@@ -4,6 +4,7 @@
 
 #include "ofxLibwebsockets.h"
 #include "ofxJSON.h"
+#include "ofxGui.h"
 
 class ofRemoteUIApp : public ofBaseApp{
 
@@ -11,6 +12,10 @@ class ofRemoteUIApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+
+		void addToGroup(string & name, Json::Value & obj, ofParameterGroup & group);
+		void unfurl(Json::Value & obj, ofParameterGroup & group);
+		ofxPanel gui;
 
 		void keyPressed  (int key);
 		void keyReleased(int key);
