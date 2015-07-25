@@ -9,6 +9,8 @@
 #include "ofxGui.h"
 #include  "json.h"
 
+//TODO save settings via remote, 0.8.4 version, two classes remote vs. client
+
 class ofxSyncedParams {
 public:
 	ofxSyncedParams();
@@ -18,7 +20,7 @@ public:
 	void setupFromParamGroup(ofParameterGroup & group);
 
 	//or to use ofxSyncedParams for a remote GUI (and create an parameter group  from Json)
-	ofParameterGroup & setupFromJson(Json::Value & jsonInit);
+	ofxGuiGroup * setupFromJson(Json::Value & jsonInit);
 
 	//parse the full parameter set to JSON (to initialize your remote GUI)
 	string parseParamsToJson ( );

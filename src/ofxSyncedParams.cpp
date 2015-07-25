@@ -48,7 +48,7 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 		for(int i=1;i<(int)path.size();++i){ //skip the first one
 			std::string groupName = path[i].asString();
 //			ofLogNotice() << groupName;
-			group = group.getGroup(groupName);
+			group = group.getGroup(groupName); //TODO crash if subgroup doesn't exist
 		}
 	}else{
 		ofLogError() << "path not found";
@@ -184,16 +184,24 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 }
 
 void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
-//	ofLogVerbose("kms145App::parameterChanged");
+	ofLogVerbose("ofxSyncedParams::parameterChanged");
 
 	Json::Value json, path;
 
 	json["type"] = "update";
 
-	//get path in paramGroup
-	const vector<string> hierarchy = parameter.getGroupHierarchyNames();
-	for(int i=0;i<(int)hierarchy.size()-1;i++){
-		path.append(hierarchy[i]);
+	//get path like getGroupHierarchyNames but only until rootGroup
+	list<string> hierarchy;
+	ofParameterGroup * parentGroup = parameter.getParent();
+	while(parentGroup != rootGroup){
+		hierarchy.push_front(parentGroup->getName());
+		parentGroup = parentGroup->getParent();
+	}
+	hierarchy.push_front(parentGroup->getName());
+
+	list<string>::iterator it = hierarchy.begin();
+	for(;it!=hierarchy.end();++it){
+		path.append(*it);
 	}
 	json["path"] = path;
 
@@ -227,16 +235,19 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	ofNotifyEvent(paramChangedE,changedParamInJson);
 }
 
-ofParameterGroup & ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
+ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 	ofParameterGroup * groupOwner = new ofParameterGroup();
 	//TODO needs refactoring! don't like it and memory leak ...
 	unfurl(jsonInit,*groupOwner);
 
-	ofParameterGroup & rootGrpRef = (ofParameterGroup&)groupOwner->get(0);
-	rootGroup = &rootGrpRef;
+	ofxGuiGroup * group = new ofxGuiGroup();
+	group->setup((ofParameterGroup&)groupOwner->get(0));
+	rootGroup = &(ofParameterGroup&)group->getParameter();
 	//TODO same here - pointer <-> reference madness
 
-	return rootGrpRef;
+	ofAddListener(rootGroup->parameterChangedE,this,&ofxSyncedParams::parameterChanged);
+
+	return group;
 }
 
 void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
@@ -249,11 +260,10 @@ void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
 		Json::Value subObj = obj.get(objName,"");
 
 		if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
-			ofLogVerbose() << "is leaf -> is a parameter";
 			//add to group
 			addToGroup(objName,subObj,parentGroup);
 		}else{
-			ofLogVerbose() << "is a parameter group";
+			//add subgroup
 			ofParameterGroup subGroup;
 			subGroup.setName(objName);
 			unfurl(subObj,subGroup);
