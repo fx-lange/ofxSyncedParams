@@ -1,8 +1,8 @@
 #include "ofRemoteUIApp.h"
 
-bool bIsSetup = false;
+bool bSetup = false;
 bool eOnInit = false;
-Json::Value jsonInit;
+Json::Value jsonInit, jsonUpdate;
 
 bool bDrawGui = false;
 
@@ -44,8 +44,9 @@ void ofRemoteUIApp::setup(){
 //--------------------------------------------------------------
 void ofRemoteUIApp::parameterChanged( std::string & paramAsJsonString ){
 	ofLogVerbose("ofDatGuiApp::parameterChanged") << paramAsJsonString;
-	if(!onUpdate)
+	if(!onUpdate){
 		client.send( paramAsJsonString );
+	}
 }
 
 //--------------------------------------------------------------
@@ -59,6 +60,9 @@ void ofRemoteUIApp::update(){
 		gui.setup();
 		gui.add(syncedParams.setupFromJson(jsonInit));
 		bDrawGui = true;
+	}else if(onUpdate){
+		syncedParams.updateParamFromJson(jsonUpdate);
+		onUpdate = false;
 	}
 }
 
@@ -98,8 +102,13 @@ void ofRemoteUIApp::onMessage( ofxLibwebsockets::Event& args ){
     if ( !args.json.isNull() ){
 		ofLogVerbose("ofRemoteUIApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
 
-		jsonInit = args.json;
-		eOnInit = true;
+		if(args.json["type"]=="update"){
+			jsonUpdate = args.json;
+			onUpdate = true;
+		}else{
+			jsonInit = args.json;
+			eOnInit = true;
+		}
 	}
 }
 
@@ -117,11 +126,14 @@ void ofRemoteUIApp::keyPressed(int key){
 		jsonInit = ofxJSONElement(jsonString);
 		eOnInit = true;
 	}else if(OF_KEY_RETURN){
+		if(bSetup)
+			return;
 		Json::Value json;
 		json["type"] = "initRequest";
 		string jsonString = json.toStyledString();
 		client.send(jsonString);
 		ofLogNotice("keyPressed") << "send:\n" << jsonString;
+		bSetup = true;
 	}
 }
 
