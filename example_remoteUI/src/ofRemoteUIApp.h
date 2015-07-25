@@ -17,6 +17,8 @@ class ofRemoteUIApp : public ofBaseApp{
 		ofxPanel gui;
 		ofxSyncedParams syncedParams;
 
+		void parameterChanged( std::string & );
+
 		void keyPressed  (int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );

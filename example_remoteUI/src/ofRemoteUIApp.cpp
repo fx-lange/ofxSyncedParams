@@ -6,6 +6,8 @@ Json::Value jsonInit;
 
 bool bDrawGui = false;
 
+bool onUpdate = false;
+
 //--------------------------------------------------------------
 void ofRemoteUIApp::setup(){
     ofBackground(0);
@@ -34,6 +36,16 @@ void ofRemoteUIApp::setup(){
 
     client.addListener(this);
     ofSetFrameRate(60);
+
+    //listen to parameter changes from ofxSynchedParams
+	ofAddListener(syncedParams.paramChangedE,this,&ofRemoteUIApp::parameterChanged);
+}
+
+//--------------------------------------------------------------
+void ofRemoteUIApp::parameterChanged( std::string & paramAsJsonString ){
+	ofLogVerbose("ofDatGuiApp::parameterChanged") << paramAsJsonString;
+	if(!onUpdate)
+		client.send( paramAsJsonString );
 }
 
 //--------------------------------------------------------------
@@ -44,8 +56,8 @@ void ofRemoteUIApp::update(){
 
 		//parse JSON to gui
 		syncedParams.setupFromJson(jsonInit);
-
-		gui.setup(syncedParams.setupFromJson(jsonInit));
+		gui.setup();
+		gui.add(syncedParams.setupFromJson(jsonInit));
 		bDrawGui = true;
 	}
 }
