@@ -10,7 +10,7 @@
 #include  "json.h"
 
 //TODO save settings via remote, 0.8.4 version, two classes remote vs. client, type:init(like type:update)
-//TODO cleanup logging, p5 js example
+//TODO p5 js example
 
 class ofxSyncedParams {
 public:

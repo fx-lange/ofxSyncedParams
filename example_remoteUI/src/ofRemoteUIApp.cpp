@@ -11,7 +11,7 @@ bool onUpdate = false;
 //--------------------------------------------------------------
 void ofRemoteUIApp::setup(){
     ofBackground(0);
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_NOTICE);
     // client.connect("echo.websocket.org");
 
     // 1 - get default options
@@ -43,7 +43,7 @@ void ofRemoteUIApp::setup(){
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::parameterChanged( std::string & paramAsJsonString ){
-	ofLogVerbose("ofDatGuiApp::parameterChanged") << paramAsJsonString;
+	ofLogVerbose("ofRemoteUIApp::parameterChanged") << paramAsJsonString;
 	if(!onUpdate){
 		client.send( paramAsJsonString );
 	}
@@ -77,30 +77,30 @@ void ofRemoteUIApp::draw(){
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onConnect( ofxLibwebsockets::Event& args ){
-    cout<<"on connected"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on connected"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onOpen( ofxLibwebsockets::Event& args ){
-    cout<<"on open"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on open"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onClose( ofxLibwebsockets::Event& args ){
-    cout<<"on close"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on close"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onIdle( ofxLibwebsockets::Event& args ){
-    cout<<"on idle"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on idle"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onMessage( ofxLibwebsockets::Event& args ){
-    ofLogNotice("") <<"got message " << args.message<<endl;
+    ofLogVerbose("ofRemoteUIApp::onMessage") <<"got message " << args.message<<endl;
 
     if ( !args.json.isNull() ){
-		ofLogVerbose("ofRemoteUIApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
+		ofLogNotice("ofRemoteUIApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
 
 		if(args.json["type"]=="update"){
 			jsonUpdate = args.json;
@@ -114,7 +114,7 @@ void ofRemoteUIApp::onMessage( ofxLibwebsockets::Event& args ){
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onBroadcast( ofxLibwebsockets::Event& args ){
-    cout<<"got broadcast "<<args.message<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"got broadcast "<<args.message<<endl;
 }
 
 //--------------------------------------------------------------
