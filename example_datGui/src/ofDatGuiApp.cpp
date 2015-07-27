@@ -72,13 +72,15 @@ void ofDatGuiApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofDatGuiApp::mousePressed(int x, int y, int button){
-    string url = "http";
-    if ( server.usingSSL() ){
-        url += "s";
-    }
-    url += "://localhost:" + ofToString( server.getPort() );
-    ofLaunchBrowser(url);
+void ofDatGuiApp::keyPressed(int key){
+	if(key == OF_KEY_RETURN){
+		string url = "http";
+		if ( server.usingSSL() ){
+			url += "s";
+		}
+		url += "://localhost:" + ofToString( server.getPort() );
+		ofLaunchBrowser(url);
+	}
 }
 
 //--------------------------------------------------------------
