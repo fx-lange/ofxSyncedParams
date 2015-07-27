@@ -54,7 +54,7 @@ void ofDatGuiApp::update() {
 	if(eInitRequest){
 		eInitRequest = false;
 		jsonString = paramSync.parseParamsToJson();
-		ofLogNotice("kms145App::update") << "parsed json string:" << jsonString;
+		ofLogNotice("ofDatGuiApp::update") << "parsed json string:" << jsonString;
 		server.send(jsonString);
 	}
 
