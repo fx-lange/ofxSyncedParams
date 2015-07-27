@@ -1,9 +1,17 @@
 #include "ofRemoteUIApp.h"
 
+bool bSetup = false;
+bool eOnInit = false;
+Json::Value jsonInit, jsonUpdate;
+
+bool bDrawGui = false;
+
+bool onUpdate = false;
+
 //--------------------------------------------------------------
 void ofRemoteUIApp::setup(){
     ofBackground(0);
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_NOTICE);
     // client.connect("echo.websocket.org");
 
     // 1 - get default options
@@ -25,60 +33,108 @@ void ofRemoteUIApp::setup(){
 
 	// 4 - connect
 	client.connect(options);
-    ofSetLogLevel(OF_LOG_ERROR);
 
     client.addListener(this);
     ofSetFrameRate(60);
+
+    //listen to parameter changes from ofxSynchedParams
+	ofAddListener(syncedParams.paramChangedE,this,&ofRemoteUIApp::parameterChanged);
+}
+
+//--------------------------------------------------------------
+void ofRemoteUIApp::parameterChanged( std::string & paramAsJsonString ){
+	ofLogVerbose("ofRemoteUIApp::parameterChanged") << paramAsJsonString;
+	if(!onUpdate){
+		client.send( paramAsJsonString );
+	}
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::update(){
+
+	if(eOnInit){
+		eOnInit = false;
+
+		//parse JSON to gui
+		syncedParams.setupFromJson(jsonInit);
+		gui.setup();
+		gui.add(syncedParams.setupFromJson(jsonInit));
+		bDrawGui = true;
+	}else if(onUpdate){
+		syncedParams.updateParamFromJson(jsonUpdate);
+		onUpdate = false;
+	}
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::draw(){
-    ofDrawBitmapString("Type anywhere to send 'hello' to your server\nCheck the console for output!", 10,20);
+    ofDrawBitmapString("press Return to synchronize with your client - if connected", 10,20);
     ofDrawBitmapString(client.isConnected() ? "Client is connected" : "Client disconnected :(", 10,50);
+    if(bDrawGui){
+    	gui.draw();
+    }
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onConnect( ofxLibwebsockets::Event& args ){
-    cout<<"on connected"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on connected"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onOpen( ofxLibwebsockets::Event& args ){
-    cout<<"on open"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on open"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onClose( ofxLibwebsockets::Event& args ){
-    cout<<"on close"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on close"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onIdle( ofxLibwebsockets::Event& args ){
-    cout<<"on idle"<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"on idle"<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onMessage( ofxLibwebsockets::Event& args ){
-    cout<<"got message "<<args.message<<endl;
+    ofLogVerbose("ofRemoteUIApp::onMessage") <<"got message " << args.message<<endl;
+
+    if ( !args.json.isNull() ){
+		ofLogNotice("ofRemoteUIApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
+
+		if(args.json["type"]=="update"){
+			jsonUpdate = args.json;
+			onUpdate = true;
+		}else{
+			jsonInit = args.json;
+			eOnInit = true;
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::onBroadcast( ofxLibwebsockets::Event& args ){
-    cout<<"got broadcast "<<args.message<<endl;
+    ofLogVerbose("ofRemoteUIApp")<<"got broadcast "<<args.message<<endl;
 }
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::keyPressed(int key){
+	ofLogVerbose("keyPressed");
 
-	Json::Value json;
-	json["type"] = "initRequest";
-	string jsonString = json.toStyledString();
-    client.send(jsonString);
-    ofLogNotice("keyPressed") << "send:\n" << jsonString;
+	if(key == 't'){
+		string jsonString = "{\"gui\":{\"group1\":{\"myFloat\":{\"max\":1,\"min\":0,\"type\":\"float\",\"value\":0.5001}}}}";//,"myInt":{"max":100,"min":0,"type":"int","value":100},"myToggle":{"type":"bool","value":false}},"group2":{"group2a":{"myColor":{"type":"color","value":[107,142,35]}},"myFloat":{"max":10,"min":0,"type":"float","value":0.0001},"myInt":{"max":100,"min":0,"type":"int","value":0},"myToggle":{"type":"bool","value":true}}}";
+		jsonInit = ofxJSONElement(jsonString);
+		eOnInit = true;
+	}else if(OF_KEY_RETURN){
+		if(bSetup)
+			return;
+		Json::Value json;
+		json["type"] = "initRequest";
+		string jsonString = json.toStyledString();
+		client.send(jsonString);
+		ofLogNotice("keyPressed") << "send:\n" << jsonString;
+		bSetup = true;
+	}
 }
 
 //--------------------------------------------------------------

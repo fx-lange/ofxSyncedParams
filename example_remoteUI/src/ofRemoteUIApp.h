@@ -4,6 +4,8 @@
 
 #include "ofxLibwebsockets.h"
 #include "ofxJSON.h"
+#include "ofxGui.h"
+#include "ofxSyncedParams.h"
 
 class ofRemoteUIApp : public ofBaseApp{
 
@@ -11,6 +13,11 @@ class ofRemoteUIApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+
+		ofxPanel gui;
+		ofxSyncedParams syncedParams;
+
+		void parameterChanged( std::string & );
 
 		void keyPressed  (int key);
 		void keyReleased(int key);

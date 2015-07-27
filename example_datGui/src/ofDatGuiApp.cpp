@@ -9,6 +9,8 @@ ofxJSONElement paramUpdate;
 
 //--------------------------------------------------------------
 void ofDatGuiApp::setup() {
+	ofSetLogLevel(OF_LOG_VERBOSE);
+
 	//create GUI group
 	gui.setup("gui","settings.xml",50,50);
 	group1.setName("group1");
@@ -43,7 +45,7 @@ void ofDatGuiApp::setup() {
 
 //--------------------------------------------------------------
 void ofDatGuiApp::parameterChanged( std::string & paramAsJsonString ){
-	ofLogVerbose("ofDatGuiApp::parameterChanged");
+//	ofLogVerbose("ofDatGuiApp::parameterChanged");
 	if(!onUpdate)
 		server.send( paramAsJsonString );
 }
@@ -54,7 +56,7 @@ void ofDatGuiApp::update() {
 	if(eInitRequest){
 		eInitRequest = false;
 		jsonString = paramSync.parseParamsToJson();
-		ofLogNotice("ofDatGuiApp::update") << "parsed json string:" << jsonString;
+		ofLogVerbose("ofDatGuiApp::update") << "parsed json string:" << jsonString;
 		server.send(jsonString);
 	}
 
@@ -70,19 +72,19 @@ void ofDatGuiApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofDatGuiApp::mousePressed(int x, int y, int button){
-    string url = "http";
-    if ( server.usingSSL() ){
-        url += "s";
-    }
-    url += "://localhost:" + ofToString( server.getPort() );
-    ofLaunchBrowser(url);
+void ofDatGuiApp::keyPressed(int key){
+	if(key == OF_KEY_RETURN){
+		string url = "http";
+		if ( server.usingSSL() ){
+			url += "s";
+		}
+		url += "://localhost:" + ofToString( server.getPort() );
+		ofLaunchBrowser(url);
+	}
 }
 
 //--------------------------------------------------------------
 void ofDatGuiApp::onMessage( ofxLibwebsockets::Event& args ){
-    ofLogNotice("ofDatGuiApp::onMessage");
-
     // trace out string messages or JSON messages!
     if ( !args.json.isNull() ){
     	ofLogVerbose("ofDatGuiApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();

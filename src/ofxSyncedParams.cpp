@@ -48,7 +48,7 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 		for(int i=1;i<(int)path.size();++i){ //skip the first one
 			std::string groupName = path[i].asString();
 //			ofLogNotice() << groupName;
-			group = group.getGroup(groupName);
+			group = group.getGroup(groupName); //TODO crash if subgroup doesn't exist
 		}
 	}else{
 		ofLogError() << "path not found";
@@ -184,18 +184,38 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 }
 
 void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
-//	ofLogVerbose("kms145App::parameterChanged");
+	ofLogVerbose("ofxSyncedParams::parameterChanged");
 
 	Json::Value json, path;
 
 	json["type"] = "update";
 
-	//get path in paramGroup
-	const vector<string> hierarchy = parameter.getGroupHierarchyNames();
-	for(int i=0;i<(int)hierarchy.size()-1;i++){
-		path.append(hierarchy[i]);
+	//get path like getGroupHierarchyNames but only until rootGroup
+//	list<string> hierarchy;
+//	ofParameterGroup * parentGroup = parameter.getParent();
+//	while(parentGroup != rootGroup){
+//		hierarchy.push_front(parentGroup->getName());
+//		parentGroup = parentGroup->getParent();
+//	}
+//	hierarchy.push_front(parentGroup->getName());
+//	list<string>::iterator it = hierarchy.begin();
+//	for(;it!=hierarchy.end();++it){
+//		path.append(*it);
+//	}
+//	json["path"] = path;
+
+	/* TODO getParent is private so the version above doesn't work anymore.
+	the new version depends on group naming and could break if a sub group has the same name as the root group*/
+
+	//get group hierarchy path until rootGroup
+	vector<string> hierarchy = parameter.getGroupHierarchyNames();
+	for(size_t i=0; i<hierarchy.size(); ++i){
+		string & groupName = hierarchy[i];
+		path.append(groupName);
+		if(groupName == rootGroup->getName()){
+			break;
+		}
 	}
-	json["path"] = path;
 
 	//get name & value
 	if(parameter.type()==typeid(ofParameter<int>).name()){
@@ -225,4 +245,77 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 
 	changedParamInJson = json.toStyledString();
 	ofNotifyEvent(paramChangedE,changedParamInJson);
+}
+
+ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
+	ofParameterGroup * groupOwner = new ofParameterGroup();
+	//TODO needs refactoring! don't like it and memory leak ...
+	unfurl(jsonInit,*groupOwner);
+
+	ofxGuiGroup * group = new ofxGuiGroup();
+	group->setup((ofParameterGroup&)groupOwner->get(0));
+	rootGroup = &(ofParameterGroup&)group->getParameter();
+	//TODO same here - pointer <-> reference madness
+
+	ofAddListener(rootGroup->parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
+
+	return group;
+}
+
+void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
+	ofLogNotice("ofRemoteUIApp::unfurl") << obj.toStyledString();
+
+	std::vector<std::string> members = obj.getMemberNames();
+	for(size_t i=0;i<members.size();++i){
+
+		std::string objName = members[i];
+		Json::Value subObj = obj.get(objName,"");
+
+		if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
+			//add to group
+			addToGroup(objName,subObj,parentGroup);
+		}else{
+			//add subgroup
+			ofParameterGroup subGroup;
+			subGroup.setName(objName);
+			unfurl(subObj,subGroup);
+			parentGroup.add(subGroup);
+		}
+	}
+}
+
+void ofxSyncedParams::addToGroup(string & name, Json::Value & obj, ofParameterGroup & group){
+	string type = obj["type"].asString();
+
+	if(type == "int"){
+		ofParameter<int> param;
+		param.setName(name);
+		param.setMin(obj["min"].asInt());
+		param.setMax(obj["max"].asInt());
+		param.set(obj["value"].asInt());
+		group.add(param);
+	}else if(type == "float"){
+		ofParameter<float> param;
+		param.setName(name);
+		param.setMin(obj["min"].asInt());
+		param.setMax(obj["max"].asInt());
+		param.set(obj["value"].asFloat());
+		group.add(param);
+	}else if(type == "bool"){
+		ofParameter<bool> param;
+		param.setName(name);
+		param.set(obj["value"].asFloat());
+		group.add(param);
+	}else if(type == "color"){
+		ofParameter<ofColor> param;
+		param.setName(name);
+		ofColor color;
+		for(int i=0;i<3;++i){
+			color[i] = obj["value"][i].asInt();
+		}
+		param.set(color);
+		param.setMin(ofColor(0,0));
+		param.setMax(ofColor(255,255));
+		group.add(param);
+	}
 }
