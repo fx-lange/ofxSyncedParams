@@ -191,19 +191,31 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	json["type"] = "update";
 
 	//get path like getGroupHierarchyNames but only until rootGroup
-	list<string> hierarchy;
-	ofParameterGroup * parentGroup = parameter.getParent();
-	while(parentGroup != rootGroup){
-		hierarchy.push_front(parentGroup->getName());
-		parentGroup = parentGroup->getParent();
-	}
-	hierarchy.push_front(parentGroup->getName());
+//	list<string> hierarchy;
+//	ofParameterGroup * parentGroup = parameter.getParent();
+//	while(parentGroup != rootGroup){
+//		hierarchy.push_front(parentGroup->getName());
+//		parentGroup = parentGroup->getParent();
+//	}
+//	hierarchy.push_front(parentGroup->getName());
+//	list<string>::iterator it = hierarchy.begin();
+//	for(;it!=hierarchy.end();++it){
+//		path.append(*it);
+//	}
+//	json["path"] = path;
 
-	list<string>::iterator it = hierarchy.begin();
-	for(;it!=hierarchy.end();++it){
-		path.append(*it);
+	/* TODO getParent is private so the version above doesn't work anymore.
+	the new version depends on group naming and could break if a sub group has the same name as the root group*/
+
+	//get group hierarchy path until rootGroup
+	vector<string> hierarchy = parameter.getGroupHierarchyNames();
+	for(size_t i=0; i<hierarchy.size(); ++i){
+		string & groupName = hierarchy[i];
+		path.append(groupName);
+		if(groupName == rootGroup->getName()){
+			break;
+		}
 	}
-	json["path"] = path;
 
 	//get name & value
 	if(parameter.type()==typeid(ofParameter<int>).name()){
@@ -245,7 +257,7 @@ ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 	rootGroup = &(ofParameterGroup&)group->getParameter();
 	//TODO same here - pointer <-> reference madness
 
-	ofAddListener(rootGroup->parameterChangedE,this,&ofxSyncedParams::parameterChanged);
+	ofAddListener(rootGroup->parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
 
 	return group;
 }
