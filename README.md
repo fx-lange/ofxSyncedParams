@@ -1,6 +1,6 @@
 # ofxSyncedParams
 
-OpenFrameworks addon to control your ofParameters with "any" remote UI, independent of language, platform and connection. Use-Cases could be fine tuning your installation with a smartphone/tablet, remote controlling over THE internet or a dedicated GUI for a multi PC setup. 
+Lightweight openFrameworks addon to control your ofParameters with "any" remote UI, independent of language, platform and connection. Use-Cases could be fine tuning your installation with a webUI on your smartphone/tablet, synchronizing your parameters over THE internet or a dedicated GUI client for a multi PC setup. 
 
 ofxSyncedParams parses your ofParameterGroup (or ofxGui) to JSON and keeps your parameters in sync in both directions. Check out the examples and let me know if you run in any issues.
 
@@ -8,7 +8,7 @@ Examples
 ---------
 * *example_datGui*: This example uses datGui (JS) as a web interface to control the parameters of your ofApp. Run the app and press ENTER to start the web UI in your default browser. The datGui will show up after a short delay and will be in sync already. Feel free to play around and add more parameters to the ofApp. 
 
-* *example_remoteUI*: Instead of using a thrid party UI, in this example the remote controller is written in oF itself. Run the first example before you start this remote controller and hit ENTER to connect them. Both ofxGui instances should be in sync.
+* *example_remoteUI*: Instead of using a third party UI, in this example the remote controller is written in oF itself. Run the first example before you start this remote controller and hit ENTER to connect them. Both ofxGui instances should be in sync.
 
 Writing your own remote (web) UI
 --------------------------------
