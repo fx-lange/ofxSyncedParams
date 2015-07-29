@@ -28,7 +28,11 @@ std::string ofxSyncedParams::parseParamsToJson ( ){
 		return "";
 	}
 
-    std::string str = parseParamGroup(*rootGroup, false).toStyledString();
+	Json::Value json;
+	json["params"] = parseParamGroup(*rootGroup, false);
+	json["type"] = "init";
+
+    std::string str = json.toStyledString();
 
     // remove spaces and new lines...
     std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
@@ -94,7 +98,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
     
     string name = _parameters.getName();
     Json::Value json;
-    //Json::Value jsonArray;
     
     for(int i=0; i < _parameters.size(); i++){
         
@@ -110,14 +113,12 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             valToAddSub["max"] = p.getMax();
             json[ p.getName() ] = valToAddSub;
             
-            //valToAdd[ p.getName() ] = valToAddSub;
-            //jsonArray.append(valToAdd);
 		}else if(type==typeid(ofParameter<float>).name()){
 			 
             ofParameter<float> p = _parameters.getFloat(i);
             Json::Value valToAddSub;
             valToAddSub["type"] = "float";
-            valToAddSub["value"] = p.get() + 0.0001;     // ok it's unhappy if see an "int" so this is a hack...
+            valToAddSub["value"] = p.get() + 0.0001;     //TODO ok it's unhappy if see an "int" so this is a hack...
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
             
@@ -208,14 +209,19 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	the new version depends on group naming and could break if a sub group has the same name as the root group*/
 
 	//get group hierarchy path until rootGroup
-	vector<string> hierarchy = parameter.getGroupHierarchyNames();
-	for(size_t i=0; i<hierarchy.size(); ++i){
-		string & groupName = hierarchy[i];
-		path.append(groupName);
+	vector<string> treeHierarchy = parameter.getGroupHierarchyNames();
+	list<string> hierarchy;
+	for(size_t i=treeHierarchy.size()-2;i>=0; --i){ //-2 because paramName is also part of the hierarchy
+		string & groupName = treeHierarchy[i];
+		hierarchy.push_front(groupName);
 		if(groupName == rootGroup->getName()){
 			break;
 		}
 	}
+	for(list<string>::iterator it = hierarchy.begin();it!=hierarchy.end();++it){
+		path.append(*it);
+	}
+	json["path"] = path;
 
 	//get name & value
 	if(parameter.type()==typeid(ofParameter<int>).name()){

@@ -60,6 +60,7 @@ void ofRemoteUIApp::update(){
 		gui.setup();
 		gui.add(syncedParams.setupFromJson(jsonInit));
 		bDrawGui = true;
+		bSetup = true;
 	}else if(onUpdate){
 		syncedParams.updateParamFromJson(jsonUpdate);
 		onUpdate = false;
@@ -102,11 +103,11 @@ void ofRemoteUIApp::onMessage( ofxLibwebsockets::Event& args ){
     if ( !args.json.isNull() ){
 		ofLogNotice("ofRemoteUIApp::onMessage") << "json message: " << args.json.toStyledString() << " from " << args.conn.getClientName();
 
-		if(args.json["type"]=="update"){
+		if(args.json["type"] == "update"){
 			jsonUpdate = args.json;
 			onUpdate = true;
-		}else{
-			jsonInit = args.json;
+		}else if(args.json["type"] == "init" && !bSetup){
+			jsonInit = args.json["params"];
 			eOnInit = true;
 		}
 	}
@@ -133,7 +134,6 @@ void ofRemoteUIApp::keyPressed(int key){
 		string jsonString = json.toStyledString();
 		client.send(jsonString);
 		ofLogNotice("keyPressed") << "send:\n" << jsonString;
-		bSetup = true;
 	}
 }
 
