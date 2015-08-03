@@ -5,7 +5,9 @@ string jsonString = "";
 bool onUpdate = false;
 bool eInitRequest = false;
 
-ofxJSONElement paramUpdate;
+string paramUpdateStr;
+
+#include "writer.h"
 
 //--------------------------------------------------------------
 void ofDatGuiApp::setup() {
@@ -25,7 +27,7 @@ void ofDatGuiApp::setup() {
 	group21.setName("group2a");
 	group21.add(color1.set("myColor",ofColor::oliveDrab,ofColor(0,0),ofColor(255,255)));
 	group2.add(group21);
-	gui.add(group2);
+//	gui.add(group2);
 	gui.loadFromFile("settings.xml");
 
 	//setup sync for GUI
@@ -61,7 +63,7 @@ void ofDatGuiApp::update() {
 	}
 
 	if(onUpdate){
-		paramSync.updateParamFromJson(paramUpdate);
+		paramSync.updateParamFromJson(paramUpdateStr);
 		onUpdate = false;
 	}
 }
@@ -92,7 +94,7 @@ void ofDatGuiApp::onMessage( ofxLibwebsockets::Event& args ){
         if(args.json["type"]=="initRequest"){
         	eInitRequest = true;
         }else if(!onUpdate){
-			paramUpdate = args.json;
+        	paramUpdateStr = args.json.toStyledString();
 			onUpdate = true;
         }
     }

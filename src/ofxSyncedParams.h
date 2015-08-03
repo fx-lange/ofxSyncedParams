@@ -8,6 +8,7 @@
 #include "ofxJSON.h"
 #include "ofxGui.h"
 #include  "json.h"
+#include "writer.h" //rapidjson
 
 //TODO save settings via remote, 0.8.4 version possible?, two classes remote vs. client
 //TODO p5 js example, combine with ofParam example, simplify datGui parser
@@ -21,13 +22,13 @@ public:
 	void setupFromParamGroup(ofParameterGroup & group);
 
 	//or to use ofxSyncedParams for a remote GUI (and create an parameter group  from Json)
-	ofxGuiGroup * setupFromJson(Json::Value & jsonInit);
+	ofxGuiGroup * setupFromJson(std::string jsonInitStr);
 
 	//parse the full parameter set to JSON (to initialize your remote GUI)
 	string parseParamsToJson ( );
 
 	//parse incoming updates from the remote GUI and update your parameters
-	void updateParamFromJson( ofxJSONElement json );
+	void updateParamFromJson( std::string json );
 
 	ofEvent<std::string> paramChangedE;
 protected:
@@ -35,7 +36,7 @@ protected:
     ofParameterGroup * rootGroup;
 
     //helper method for parseParamsToJson()
-    Json::Value parseParamGroup( ofParameterGroup & subGroup,  bool bInnerGroup); //TODO use pointer
+    void parseParamGroup( ofParameterGroup & subGroup, rapidjson::Writer<rapidjson::StringBuffer> * writer); //TODO use pointer
 
     //event for changed parameters
     std::string changedParamInJson;

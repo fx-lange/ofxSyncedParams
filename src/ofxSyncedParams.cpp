@@ -4,6 +4,8 @@
 
 #include "ofxSyncedParams.h"
 
+#include "stringbuffer.h"
+
 ofxSyncedParams::ofxSyncedParams(){
 	bSetup = false;
 	rootGroup = NULL;
@@ -28,21 +30,38 @@ std::string ofxSyncedParams::parseParamsToJson ( ){
 		return "";
 	}
 
-	Json::Value json;
-	json["params"] = parseParamGroup(*rootGroup, false);
-	json["type"] = "init";
+	rapidjson::StringBuffer *sPtr = new rapidjson::StringBuffer();
+	rapidjson::Writer<rapidjson::StringBuffer> * writer = new rapidjson::Writer<rapidjson::StringBuffer>(*sPtr);
+	writer->StartObject();
+	writer->String("params");
+	writer->StartObject();
+	writer->String(rootGroup->getName().c_str());
+	parseParamGroup(*rootGroup,writer);
+	writer->EndObject();
+	writer->String("type");
+	writer->String("init");
+	writer->EndObject();
 
-    std::string str = json.toStyledString();
+//	string str = parseParamGroup(*rootGroup);
+//	cout << str << endl;
+//	ofLogNotice("rapidjson") << str;
 
-    // remove spaces and new lines...
-    std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
-    str.erase(end_pos, str.end());
-    end_pos = std::remove(str.begin(), str.end(), '\n');
-    str.erase(end_pos, str.end());
-    return str;
+//    std::string str = json.toStyledString();
+//
+//    // remove spaces and new lines...
+//    std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
+//    str.erase(end_pos, str.end());
+//    end_pos = std::remove(str.begin(), str.end(), '\n');
+//    str.erase(end_pos, str.end());
+//    end_pos = std::remove(str.begin(), str.end(), '\\');
+//    str.erase(end_pos, str.end());
+//    return str;
+	return sPtr->GetString();
 }
 
-void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
+void ofxSyncedParams::updateParamFromJson(std::string jsonStr){
+	ofxJSONElement json = jsonStr;
+
 	ofParameterGroup group = *rootGroup; //TODO why pointer -> object and not pointer -> pointer?
 //    ofLogNotice("use") << group.getName();
 
@@ -93,95 +112,95 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 	}
 }
 
-Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
-    
-    
-    string name = _parameters.getName();
-    Json::Value json;
-    
-    for(int i=0; i < _parameters.size(); i++){
+void ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, rapidjson::Writer<rapidjson::StringBuffer> * writer){
+    writer->StartObject();
+
+    for(size_t i=0; i < _parameters.size(); i++){
         
 		string type = _parameters.getType(i);
         
 		if(type==typeid(ofParameter<int>).name()){
 			
             ofParameter<int> p = _parameters.getInt(i);
-            Json::Value valToAddSub;
-            valToAddSub["type"] = "int";
-            valToAddSub["value"] = p.get();
-            valToAddSub["min"] = p.getMin();
-            valToAddSub["max"] = p.getMax();
-            json[ p.getName() ] = valToAddSub;
+            writer->String(p.getName().c_str());
+            writer->StartObject();
+            writer->String("type");
+            writer->String("int");
+            writer->String("value");
+            writer->Int(p.get());
+            writer->String("min");
+            writer->Int(p.getMin());
+            writer->String("max");
+            writer->Int(p.getMax());
+            writer->EndObject();
             
-		}else if(type==typeid(ofParameter<float>).name()){
-			 
-            ofParameter<float> p = _parameters.getFloat(i);
-            Json::Value valToAddSub;
-            valToAddSub["type"] = "float";
-            valToAddSub["value"] = p.get() + 0.0001;     //TODO ok it's unhappy if see an "int" so this is a hack...
-            valToAddSub["min"] = p.getMin();
-            valToAddSub["max"] = p.getMax();
-            
-            json[ p.getName() ] = valToAddSub;
-            
-		}else if(type==typeid(ofParameter<bool>).name()){
-			ofParameter<bool> p = _parameters.getBool(i);
-            
-            Json::Value valToAddSub;
-            valToAddSub["type"] = "bool";
-            valToAddSub["value"] = p.get();
-            json[ p.getName() ] = valToAddSub;
+		}
 
-		}else if(type==typeid(ofParameter<ofVec2f>).name()){
-			ofParameter<ofVec2f> p = _parameters.getVec2f(i);
-
-		}else if(type==typeid(ofParameter<ofVec3f>).name()){
-			ofParameter<ofVec3f> p = _parameters.getVec3f(i);
-
-		}else if(type==typeid(ofParameter<ofVec4f>).name()){
-			ofParameter<ofVec4f> p = _parameters.getVec4f(i);
-
-		}else if(type==typeid(ofParameter<ofColor>).name()){
-			ofParameter<ofColor> p = _parameters.getColor(i);
-            
-            ofColor temp = p;
-            Json::Value valToAddSub;
-            
-            Json::Value jsonArray;
-            jsonArray.append(temp.r);
-            jsonArray.append(temp.g);
-            jsonArray.append(temp.b);
-            
-            valToAddSub["type"] = "color";
-            valToAddSub["value"] = jsonArray;
-            json[ p.getName() ] = valToAddSub;
-            
-
-		}else if(type==typeid(ofParameter<ofShortColor>).name()){
-			ofParameter<ofShortColor> p = _parameters.getShortColor(i);
-
-		}else if(type==typeid(ofParameter<ofFloatColor>).name()){
-			ofParameter<ofFloatColor> p = _parameters.getFloatColor(i);
-
-		}else if(type==typeid(ofParameter<string>).name()){
-            ofParameter<string> p = _parameters.getString(i);
-            
-		}else if(type==typeid(ofParameterGroup).name()){
+//		else if(type==typeid(ofParameter<float>).name()){
+//
+//            ofParameter<float> p = _parameters.getFloat(i);
+//            Json::Value valToAddSub;
+//            valToAddSub["type"] = "float";
+//            valToAddSub["value"] = p.get() + 0.0001;     //TODO ok it's unhappy if see an "int" so this is a hack...
+//            valToAddSub["min"] = p.getMin();
+//            valToAddSub["max"] = p.getMax();
+//
+//            json[ p.getName() ] = valToAddSub;
+//
+//		}else if(type==typeid(ofParameter<bool>).name()){
+//			ofParameter<bool> p = _parameters.getBool(i);
+//
+//            Json::Value valToAddSub;
+//            valToAddSub["type"] = "bool";
+//            valToAddSub["value"] = p.get();
+//            json[ p.getName() ] = valToAddSub;
+//
+//		}else if(type==typeid(ofParameter<ofVec2f>).name()){
+//			ofParameter<ofVec2f> p = _parameters.getVec2f(i);
+//
+//		}else if(type==typeid(ofParameter<ofVec3f>).name()){
+//			ofParameter<ofVec3f> p = _parameters.getVec3f(i);
+//
+//		}else if(type==typeid(ofParameter<ofVec4f>).name()){
+//			ofParameter<ofVec4f> p = _parameters.getVec4f(i);
+//
+//		}else if(type==typeid(ofParameter<ofColor>).name()){
+//			ofParameter<ofColor> p = _parameters.getColor(i);
+//
+//            ofColor temp = p;
+//            Json::Value valToAddSub;
+//
+//            Json::Value jsonArray;
+//            jsonArray.append(temp.r);
+//            jsonArray.append(temp.g);
+//            jsonArray.append(temp.b);
+//
+//            valToAddSub["type"] = "color";
+//            valToAddSub["value"] = jsonArray;
+//            json[ p.getName() ] = valToAddSub;
+//
+//
+//		}else if(type==typeid(ofParameter<ofShortColor>).name()){
+//			ofParameter<ofShortColor> p = _parameters.getShortColor(i);
+//
+//		}else if(type==typeid(ofParameter<ofFloatColor>).name()){
+//			ofParameter<ofFloatColor> p = _parameters.getFloatColor(i);
+//
+//		}else if(type==typeid(ofParameter<string>).name()){
+//            ofParameter<string> p = _parameters.getString(i);
+//
+//		}
+    	else if(type==typeid(ofParameterGroup).name()){
 			ofParameterGroup p = _parameters.getGroup(i);
-            Json::Value jsonTemp = parseParamGroup (p, true);
-            json[ p.getName() ] = jsonTemp;
-		}else{
-            ofLogWarning() << "ofxBaseGroup; no control for parameter of type " << type;
+			writer->String(p.getName().c_str());
+            parseParamGroup (p, writer);
+		}
+    	else{
+            ofLogWarning() << "ofxBaseGroup; no control for parameter of type" << type;
 		}
     }
-    
-    if (!bInnerGroup){
-        Json::Value jsonOuter;
-        jsonOuter[name] = json;
-        return jsonOuter;
-    } else {
-        return json;
-    }
+
+	writer->EndObject();
 }
 
 void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
@@ -254,7 +273,9 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	ofNotifyEvent(paramChangedE,changedParamInJson);
 }
 
-ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
+ofxGuiGroup * ofxSyncedParams::setupFromJson(std::string jsonInitStr){
+	Json::Value jsonInit = jsonInitStr;
+
 	ofParameterGroup * groupOwner = new ofParameterGroup();
 	//TODO needs refactoring! don't like it and memory leak ...
 	unfurl(jsonInit,*groupOwner);
