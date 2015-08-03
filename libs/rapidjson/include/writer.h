@@ -106,7 +106,7 @@ public:
     //@{
 
     bool Null()                 { Prefix(kNullType);   return WriteNull(); }
-//    bool Bool(bool b)           { Prefix(b ? kTrueType : kFalseType); return WriteBool(b); }
+    bool SetBool(bool b)           { Prefix(b ? kTrueType : kFalseType); return WriteBool(b); }
     bool Int(int i)             { Prefix(kNumberType); return WriteInt(i); }
     bool Uint(unsigned u)       { Prefix(kNumberType); return WriteUint(u); }
     bool Int64(int64_t i64)     { Prefix(kNumberType); return WriteInt64(i64); }
