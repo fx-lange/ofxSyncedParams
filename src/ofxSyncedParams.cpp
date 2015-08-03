@@ -42,20 +42,6 @@ std::string ofxSyncedParams::parseParamsToJson ( ){
 	writer->String("init");
 	writer->EndObject();
 
-//	string str = parseParamGroup(*rootGroup);
-//	cout << str << endl;
-//	ofLogNotice("rapidjson") << str;
-
-//    std::string str = json.toStyledString();
-//
-//    // remove spaces and new lines...
-//    std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
-//    str.erase(end_pos, str.end());
-//    end_pos = std::remove(str.begin(), str.end(), '\n');
-//    str.erase(end_pos, str.end());
-//    end_pos = std::remove(str.begin(), str.end(), '\\');
-//    str.erase(end_pos, str.end());
-//    return str;
 	return sPtr->GetString();
 }
 
@@ -134,62 +120,50 @@ void ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, rapidjson:
             writer->Int(p.getMax());
             writer->EndObject();
             
-		}
+		}else if(type==typeid(ofParameter<float>).name()){
 
-//		else if(type==typeid(ofParameter<float>).name()){
-//
-//            ofParameter<float> p = _parameters.getFloat(i);
-//            Json::Value valToAddSub;
-//            valToAddSub["type"] = "float";
-//            valToAddSub["value"] = p.get() + 0.0001;     //TODO ok it's unhappy if see an "int" so this is a hack...
-//            valToAddSub["min"] = p.getMin();
-//            valToAddSub["max"] = p.getMax();
-//
-//            json[ p.getName() ] = valToAddSub;
-//
-//		}else if(type==typeid(ofParameter<bool>).name()){
-//			ofParameter<bool> p = _parameters.getBool(i);
-//
-//            Json::Value valToAddSub;
-//            valToAddSub["type"] = "bool";
-//            valToAddSub["value"] = p.get();
-//            json[ p.getName() ] = valToAddSub;
-//
-//		}else if(type==typeid(ofParameter<ofVec2f>).name()){
-//			ofParameter<ofVec2f> p = _parameters.getVec2f(i);
-//
-//		}else if(type==typeid(ofParameter<ofVec3f>).name()){
-//			ofParameter<ofVec3f> p = _parameters.getVec3f(i);
-//
-//		}else if(type==typeid(ofParameter<ofVec4f>).name()){
-//			ofParameter<ofVec4f> p = _parameters.getVec4f(i);
-//
-//		}else if(type==typeid(ofParameter<ofColor>).name()){
-//			ofParameter<ofColor> p = _parameters.getColor(i);
-//
-//            ofColor temp = p;
-//            Json::Value valToAddSub;
-//
-//            Json::Value jsonArray;
-//            jsonArray.append(temp.r);
-//            jsonArray.append(temp.g);
-//            jsonArray.append(temp.b);
-//
-//            valToAddSub["type"] = "color";
-//            valToAddSub["value"] = jsonArray;
-//            json[ p.getName() ] = valToAddSub;
-//
-//
-//		}else if(type==typeid(ofParameter<ofShortColor>).name()){
-//			ofParameter<ofShortColor> p = _parameters.getShortColor(i);
-//
-//		}else if(type==typeid(ofParameter<ofFloatColor>).name()){
-//			ofParameter<ofFloatColor> p = _parameters.getFloatColor(i);
-//
-//		}else if(type==typeid(ofParameter<string>).name()){
-//            ofParameter<string> p = _parameters.getString(i);
-//
-//		}
+            ofParameter<float> p = _parameters.getFloat(i);
+            writer->String(p.getName().c_str());
+			writer->StartObject();
+			writer->String("type");
+			writer->String("float");
+			writer->String("value");
+			writer->Double(p.get()+0.0000000001);
+			writer->String("min");
+			writer->Int(p.getMin());
+			writer->String("max");
+			writer->Int(p.getMax());
+			writer->EndObject();
+
+		}else if(type==typeid(ofParameter<bool>).name()){
+			ofParameter<bool> p = _parameters.getBool(i);
+			writer->String(p.getName().c_str());
+			writer->StartObject();
+			writer->String("type");
+			writer->String("bool");
+			writer->String("value");
+			writer->SetBool(p.get());
+			writer->EndObject();
+		}
+		else if(type==typeid(ofParameter<ofColor>).name()){
+			ofParameter<ofColor> p = _parameters.getColor(i);
+
+            ofColor temp = p;
+
+			writer->String(p.getName().c_str());
+			writer->StartObject();
+			writer->String("type");
+			writer->String("color");
+			writer->String("value");
+			writer->StartArray();
+			writer->Int(temp.r);
+			writer->Int(temp.g);
+			writer->Int(temp.b);
+//			writer->Int(temp.a);
+			writer->EndArray();
+			writer->EndObject();
+
+		}
     	else if(type==typeid(ofParameterGroup).name()){
 			ofParameterGroup p = _parameters.getGroup(i);
 			writer->String(p.getName().c_str());

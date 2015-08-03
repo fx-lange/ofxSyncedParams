@@ -27,7 +27,7 @@ void ofDatGuiApp::setup() {
 	group21.setName("group2a");
 	group21.add(color1.set("myColor",ofColor::oliveDrab,ofColor(0,0),ofColor(255,255)));
 	group2.add(group21);
-//	gui.add(group2);
+	gui.add(group2);
 	gui.loadFromFile("settings.xml");
 
 	//setup sync for GUI
