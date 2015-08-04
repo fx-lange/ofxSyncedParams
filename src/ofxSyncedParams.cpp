@@ -132,15 +132,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             valToAddSub["value"] = p.get();
             json[ p.getName() ] = valToAddSub;
 
-		}else if(type==typeid(ofParameter<ofVec2f>).name()){
-			ofParameter<ofVec2f> p = _parameters.getVec2f(i);
-
-		}else if(type==typeid(ofParameter<ofVec3f>).name()){
-			ofParameter<ofVec3f> p = _parameters.getVec3f(i);
-
-		}else if(type==typeid(ofParameter<ofVec4f>).name()){
-			ofParameter<ofVec4f> p = _parameters.getVec4f(i);
-
 		}else if(type==typeid(ofParameter<ofColor>).name()){
 			ofParameter<ofColor> p = _parameters.getColor(i);
             
@@ -157,15 +148,6 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             json[ p.getName() ] = valToAddSub;
             
 
-		}else if(type==typeid(ofParameter<ofShortColor>).name()){
-			ofParameter<ofShortColor> p = _parameters.getShortColor(i);
-
-		}else if(type==typeid(ofParameter<ofFloatColor>).name()){
-			ofParameter<ofFloatColor> p = _parameters.getFloatColor(i);
-
-		}else if(type==typeid(ofParameter<string>).name()){
-            ofParameter<string> p = _parameters.getString(i);
-            
 		}else if(type==typeid(ofParameterGroup).name()){
 			ofParameterGroup p = _parameters.getGroup(i);
             Json::Value jsonTemp = parseParamGroup (p, true);
