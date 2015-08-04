@@ -56,7 +56,6 @@ void ofRemoteUIApp::update(){
 		eOnInit = false;
 
 		//parse JSON to gui
-		syncedParams.setupFromJson(jsonInit);
 		gui.setup();
 		gui.add(syncedParams.setupFromJson(jsonInit));
 		bDrawGui = true;

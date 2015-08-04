@@ -45,8 +45,7 @@ std::string ofxSyncedParams::parseParamsToJson ( ){
 	return sPtr->GetString();
 }
 
-void ofxSyncedParams::updateParamFromJson(std::string jsonStr){
-	ofxJSONElement json = jsonStr;
+void ofxSyncedParams::updateParamFromJson(Json::Value & json){
 
 	ofParameterGroup group = *rootGroup; //TODO why pointer -> object and not pointer -> pointer?
 //    ofLogNotice("use") << group.getName();
@@ -247,8 +246,7 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	ofNotifyEvent(paramChangedE,changedParamInJson);
 }
 
-ofxGuiGroup * ofxSyncedParams::setupFromJson(std::string jsonInitStr){
-	Json::Value jsonInit = jsonInitStr;
+ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 
 	ofParameterGroup * groupOwner = new ofParameterGroup();
 	//TODO needs refactoring! don't like it and memory leak ...

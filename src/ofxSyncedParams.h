@@ -22,13 +22,13 @@ public:
 	void setupFromParamGroup(ofParameterGroup & group);
 
 	//or to use ofxSyncedParams for a remote GUI (and create an parameter group  from Json)
-	ofxGuiGroup * setupFromJson(std::string jsonInitStr);
+	ofxGuiGroup * setupFromJson( Json::Value & jsonInit );
 
 	//parse the full parameter set to JSON (to initialize your remote GUI)
 	string parseParamsToJson ( );
 
 	//parse incoming updates from the remote GUI and update your parameters
-	void updateParamFromJson( std::string json );
+	void updateParamFromJson( Json::Value & json );
 
 	ofEvent<std::string> paramChangedE;
 protected:

@@ -5,7 +5,7 @@ string jsonString = "";
 bool onUpdate = false;
 bool eInitRequest = false;
 
-string paramUpdateStr;
+Json::Value paramUpdate;
 
 #include "writer.h"
 
@@ -63,7 +63,7 @@ void ofDatGuiApp::update() {
 	}
 
 	if(onUpdate){
-		paramSync.updateParamFromJson(paramUpdateStr);
+		paramSync.updateParamFromJson(paramUpdate);
 		onUpdate = false;
 	}
 }
@@ -94,7 +94,7 @@ void ofDatGuiApp::onMessage( ofxLibwebsockets::Event& args ){
         if(args.json["type"]=="initRequest"){
         	eInitRequest = true;
         }else if(!onUpdate){
-        	paramUpdateStr = args.json.toStyledString();
+        	paramUpdate = args.json;
 			onUpdate = true;
         }
     }
