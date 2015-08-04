@@ -98,7 +98,7 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
     string name = _parameters.getName();
     Json::Value json;
     
-    for(int i=0; i < (int)_parameters.size(); i++){
+    for(int i=0; i < _parameters.size(); i++){
         
 		string type = _parameters.getType(i);
         bool bKnownParameter = false;
@@ -147,8 +147,8 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
 
 			ofParameterGroup p = _parameters.getGroup(i);
             Json::Value jsonTemp = parseParamGroup (p, true);
-			json[ p.getName() ]["members"] = jsonTemp;
-            json[ p.getName() ]["orderIdx"] = i;
+            jsonTemp["orderIdx"] = i;
+            json[ p.getName() ] = jsonTemp;
 
 		}else{
             ofLogWarning() << "ofxBaseGroup; no control for parameter of type " << type;
@@ -162,8 +162,8 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
     
     if (!bInnerGroup){
         Json::Value jsonOuter;
-        jsonOuter[name]["members"] = json;
-        jsonOuter[name]["orderIdx"] = 0;
+        json["orderIdx"] = 0;
+        jsonOuter[name] = json;
         return jsonOuter;
     } else {
         return json;
