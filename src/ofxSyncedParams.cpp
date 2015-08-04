@@ -258,21 +258,29 @@ ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
 	ofLogNotice("ofRemoteUIApp::unfurl") << obj.toStyledString();
 
+	/* instead of just going through all members in one loop,
+		a second loop (outer) is needed to find the members in the right order,
+		because many c++ json implementation don't keep track of the insertion order. */
+
 	std::vector<std::string> members = obj.getMemberNames();
-	for(size_t i=0;i<members.size();++i){
+	for(int i=0;i<(int)members.size();++i){
+		for(size_t k=0;k<members.size();++k){
 
-		std::string objName = members[i];
-		Json::Value subObj = obj.get(objName,"");
+			std::string objName = members[k];
+			Json::Value subObj = obj.get(objName,"");
+			if(subObj["orderIdx"].asInt()!= i)
+				continue;
 
-		if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
-			//add to group
-			addToGroup(objName,subObj,parentGroup);
-		}else{
-			//add subgroup
-			ofParameterGroup subGroup;
-			subGroup.setName(objName);
-			unfurl(subObj,subGroup);
-			parentGroup.add(subGroup);
+			if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
+				//add to group
+				addToGroup(objName,subObj,parentGroup);
+			}else{
+				//add subgroup
+				ofParameterGroup subGroup;
+				subGroup.setName(objName);
+				unfurl(subObj,subGroup);
+				parentGroup.add(subGroup);
+			}
 		}
 	}
 }
