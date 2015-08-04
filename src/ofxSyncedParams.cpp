@@ -66,13 +66,13 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 
 	if(type==typeid(ofParameter<float>).name()){
 		ofParameter<float> & p = param.cast<float>();
-		p.setWithoutEventNotifcations(json["value"].asFloat());
+		p.set(json["value"].asFloat());
 	}else if(type==typeid(ofParameter<int>).name()){
 		ofParameter<int> & p = param.cast<int>();
-		p.setWithoutEventNotifcations(json["value"].asInt());
+		p.set(json["value"].asInt());
 	}else if(type==typeid(ofParameter<bool>).name()){
 		ofParameter<bool> & p = param.cast<bool>();
-		p.setWithoutEventNotifcations(json["value"].asBool());
+		p.set(json["value"].asBool());
 	}
 	else if(type==typeid(ofParameter<ofColor>).name()){
 		ofParameter<ofColor> p = param.cast<ofColor>();
@@ -81,14 +81,14 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 			float r = elem[0].asInt();
 			float g = elem[1].asInt();
 			float b = elem[2].asInt();
-			p.setWithoutEventNotifcations( ofColor(r,g,b));
+			p.set( ofColor(r,g,b));
 		} else {
 			std::string hex = elem.asString();
 			hex.erase(0, 1);
 			unsigned int color = strtoul(hex.c_str(), NULL, 16);
 			ofColor c;
 			c.setHex(color);
-			p.setWithoutEventNotifcations(c);
+			p.set(c);
 		}
 	}
 }
@@ -241,16 +241,18 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 }
 
 ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
-	rootGroup = new ofParameterGroup();
+	ofParameterGroup * groupOwner = new ofParameterGroup();
 //	//TODO needs refactoring! don't like it and memory leak ...
 
 	std::string rootName = jsonInit.getMemberNames()[0];
-	rootGroup->setName(rootName);
-	unfurl(jsonInit[rootName],*rootGroup);
+	ofParameterGroup subGroup;
+	subGroup.setName(rootName);
+	unfurl(jsonInit[rootName],subGroup);
+	groupOwner->add(subGroup);
 
 	ofxGuiGroup * group = new ofxGuiGroup();
-	group->setup(*rootGroup);
-//	rootGroup = &(ofParameterGroup&)group->getParameter();
+	group->setup((ofParameterGroup&)groupOwner->get(0));
+	rootGroup = &(ofParameterGroup&)group->getParameter();
 	//TODO same here - pointer <-> reference madness
 
 	ofAddListener(rootGroup->parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
