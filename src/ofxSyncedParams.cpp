@@ -95,49 +95,45 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 
 Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, bool bInnerGroup = false){
     
-    
     string name = _parameters.getName();
     Json::Value json;
     
     for(int i=0; i < _parameters.size(); i++){
         
 		string type = _parameters.getType(i);
-        
+        bool bKnownParameter = false;
+
+        Json::Value valToAddSub;
 		if(type==typeid(ofParameter<int>).name()){
 			
             ofParameter<int> p = _parameters.getInt(i);
-            Json::Value valToAddSub;
             valToAddSub["type"] = "int";
             valToAddSub["value"] = p.get();
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
-            json[ p.getName() ] = valToAddSub;
-            
+            bKnownParameter = true;
+
 		}else if(type==typeid(ofParameter<float>).name()){
 			 
             ofParameter<float> p = _parameters.getFloat(i);
-            Json::Value valToAddSub;
             valToAddSub["type"] = "float";
             valToAddSub["value"] = p.get() + 0.0001;     //TODO ok it's unhappy if see an "int" so this is a hack...
             valToAddSub["min"] = p.getMin();
             valToAddSub["max"] = p.getMax();
-            
-            json[ p.getName() ] = valToAddSub;
+            bKnownParameter = true;
             
 		}else if(type==typeid(ofParameter<bool>).name()){
+
 			ofParameter<bool> p = _parameters.getBool(i);
-            
-            Json::Value valToAddSub;
             valToAddSub["type"] = "bool";
             valToAddSub["value"] = p.get();
-            json[ p.getName() ] = valToAddSub;
+            bKnownParameter = true;
 
 		}else if(type==typeid(ofParameter<ofColor>).name()){
+
 			ofParameter<ofColor> p = _parameters.getColor(i);
             
             ofColor temp = p;
-            Json::Value valToAddSub;
-            
             Json::Value jsonArray;
             jsonArray.append(temp.r);
             jsonArray.append(temp.g);
@@ -145,20 +141,28 @@ Json::Value ofxSyncedParams::parseParamGroup(ofParameterGroup & _parameters, boo
             
             valToAddSub["type"] = "color";
             valToAddSub["value"] = jsonArray;
-            json[ p.getName() ] = valToAddSub;
-            
+            bKnownParameter = true;
 
 		}else if(type==typeid(ofParameterGroup).name()){
+
 			ofParameterGroup p = _parameters.getGroup(i);
             Json::Value jsonTemp = parseParamGroup (p, true);
+            jsonTemp["orderIdx"] = i;
             json[ p.getName() ] = jsonTemp;
+
 		}else{
             ofLogWarning() << "ofxBaseGroup; no control for parameter of type " << type;
+		}
+
+		if(bKnownParameter){
+			valToAddSub["orderIdx"] = i;
+			json[ _parameters.getName(i) ] = valToAddSub;
 		}
     }
     
     if (!bInnerGroup){
         Json::Value jsonOuter;
+        json["orderIdx"] = 0;
         jsonOuter[name] = json;
         return jsonOuter;
     } else {

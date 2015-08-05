@@ -25,22 +25,36 @@ function guiGlue(paramsGUI, optionsGUI){
 
         function unfurl(obj, folder, params){
 
-            for (var key in obj){
+            /*
+                instead of just going through all members of obj in one loop,
+                a second loop (outer) is needed to find the members in the right order,
+                because many json implementation don't keep track of the insertion order.
+                for example jsoncpp used by ofxSyncedParams does not ...
+            */
+            
+            var size = Object.keys(obj).length;
+            for(var i=0;i<size;++i){
 
-                var subObj = obj[key];
-                var leaf = isLeaf(subObj);
-                
-                if (leaf){
-                    addToFolder(key, obj, subObj, folder, params);
-                }
-                else{ 
-                    //is folder
-                    var subfolder = folder.addFolder(key);
-                    if (!optionsGUI.folded)
-                        subfolder.open();
+                for (var key in obj){
 
-                    params[key] = {};
-                    unfurl(obj[key], subfolder, params[key]);
+                    var subObj = obj[key];
+                    if(subObj["orderIdx"] != i)
+                        continue;
+
+                    var leaf = isLeaf(subObj);
+                    
+                    if (leaf){
+                        addToFolder(key, obj, subObj, folder, params);
+                    }
+                    else{ 
+                        //is folder
+                        var subfolder = folder.addFolder(key);
+                        if (!optionsGUI.folded)
+                            subfolder.open();
+
+                        params[key] = {};
+                        unfurl(obj[key], subfolder, params[key]);
+                    }
                 }
 
             }
