@@ -20,8 +20,16 @@ function guiGlue(paramsGUI, optionsGUI){
         //initial creation    
         var gui = new dat.GUI(optionsGUI);
 
+        //handle root
+        var rootKey = Object.keys(paramsGUI)[0];
+        var rootFolder = gui.addFolder(rootKey);
+        if (!optionsGUI.folded)
+            rootFolder.open();
+
+        params[rootKey] = {};
+
         //walk the parameter tree
-        unfurl(paramsGUI, gui, params);
+        unfurl(paramsGUI[rootKey], rootFolder, params[rootKey]);
 
         function unfurl(obj, folder, params){
 
@@ -32,19 +40,19 @@ function guiGlue(paramsGUI, optionsGUI){
                 for example jsoncpp used by ofxSyncedParams does not ...
             */
             
-            var size = Object.keys(obj).length;
+            var size = Object.keys(obj["members"]).length;
             for(var i=0;i<size;++i){
 
-                for (var key in obj){
+                for (var key in obj["members"]){
 
-                    var subObj = obj[key];
+                    var subObj = obj["members"][key];
                     if(subObj["orderIdx"] != i)
                         continue;
 
                     var leaf = isLeaf(subObj);
                     
                     if (leaf){
-                        addToFolder(key, obj, subObj, folder, params);
+                        addToFolder(key, subObj, folder, params);
                     }
                     else{ 
                         //is folder
@@ -53,7 +61,7 @@ function guiGlue(paramsGUI, optionsGUI){
                             subfolder.open();
 
                         params[key] = {};
-                        unfurl(obj[key], subfolder, params[key]);
+                        unfurl(obj["members"][key], subfolder, params[key]);
                     }
                 }
 
@@ -63,26 +71,13 @@ function guiGlue(paramsGUI, optionsGUI){
             //it is critical that none of the tracked parameters is itself an object
             function isLeaf(obj){
 
-                var Leaf = true;
-                for (var key in obj){
-
-                    if (key === 'choices' && obj.display === 'selector') continue;
-
-                    if (Leaf){
-                        var isObj = (Object.prototype.toString.call( obj[key] ) != '[object Object]');
-                        Leaf = Leaf && isObj;
-                    }
-                    else
-                        continue;
-                }
-
-                return Leaf;
+                return !obj.hasOwnProperty('members');
 
             }
 
         }
 
-        function addToFolder(key, obj, options, folder, params){
+        function addToFolder(key, options, folder, params){
 
             var handle;
             params[key] = options.value;
