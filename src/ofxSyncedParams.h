@@ -42,6 +42,6 @@ protected:
     void parameterChanged( ofAbstractParameter & parameter);
 
     //helper methods for setupFromJson()
-    void addToGroup(string & name, Json::Value & obj, ofParameterGroup & group);
-	void unfurl(Json::Value & obj, ofParameterGroup & group);
+    void addToGroup(string & name, Json::Value & obj, ofParameterGroup * group);
+	void unfurl(Json::Value & obj, ofParameterGroup * group);
 };

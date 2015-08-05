@@ -245,9 +245,9 @@ ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 
 	std::string rootName = jsonInit.getMemberNames()[0];
 	rootGroup->setName(rootName);
-	unfurl(jsonInit[rootName],*rootGroup);
+	unfurl(jsonInit[rootName],rootGroup);
 
-	ofxGuiGroup * group = new ofxGuiGroup();
+	ofxGuiGroup * group = new ofxGuiGroup(); //TODO store this pointer!
 	group->setup(*rootGroup);
 
 	ofAddListener(rootGroup->parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
@@ -255,7 +255,7 @@ ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 	return group;
 }
 
-void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
+void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup * parentGroup){
 	ofLogNotice("ofRemoteUIApp::unfurl") << obj.toStyledString();
 
 	/* instead of just going through all members in one loop,
@@ -276,47 +276,47 @@ void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
 				addToGroup(objName,subObj,parentGroup);
 			}else{
 				//add subgroup
-				ofParameterGroup subGroup;
-				subGroup.setName(objName);
+				ofParameterGroup * subGroup = new ofParameterGroup(); //TODO store pointer somewhere
+				subGroup->setName(objName);
 				unfurl(subObj,subGroup);
-				parentGroup.add(subGroup);
+				parentGroup->add(*subGroup);
 			}
 		}
 	}
 }
 
-void ofxSyncedParams::addToGroup(string & name, Json::Value & obj, ofParameterGroup & group){
+void ofxSyncedParams::addToGroup(string & name, Json::Value & obj, ofParameterGroup * group){
 	string type = obj["type"].asString();
 
 	if(type == "int"){
-		ofParameter<int> param;
-		param.setName(name);
-		param.setMin(obj["min"].asInt());
-		param.setMax(obj["max"].asInt());
-		param.set(obj["value"].asInt());
-		group.add(param);
+		ofParameter<int> * param = new ofParameter<int>();
+		param->setName(name);
+		param->setMin(obj["min"].asInt());
+		param->setMax(obj["max"].asInt());
+		param->set(obj["value"].asInt());
+		group->add(*param);
 	}else if(type == "float"){
-		ofParameter<float> param;
-		param.setName(name);
-		param.setMin(obj["min"].asInt());
-		param.setMax(obj["max"].asInt());
-		param.set(obj["value"].asFloat());
-		group.add(param);
+		ofParameter<float> * param = new ofParameter<float>();
+		param->setName(name);
+		param->setMin(obj["min"].asInt());
+		param->setMax(obj["max"].asInt());
+		param->set(obj["value"].asFloat());
+		group->add(*param);
 	}else if(type == "bool"){
-		ofParameter<bool> param;
-		param.setName(name);
-		param.set(obj["value"].asFloat());
-		group.add(param);
+		ofParameter<bool> * param = new ofParameter<bool>();
+		param->setName(name);
+		param->set(obj["value"].asFloat());
+		group->add(*param);
 	}else if(type == "color"){
-		ofParameter<ofColor> param;
-		param.setName(name);
+		ofParameter<ofColor> * param = new ofParameter<ofColor>();
+		param->setName(name);
 		ofColor color;
 		for(int i=0;i<3;++i){
 			color[i] = obj["value"][i].asInt();
 		}
-		param.set(color);
-		param.setMin(ofColor(0,0));
-		param.setMax(ofColor(255,255));
-		group.add(param);
+		param->set(color);
+		param->setMin(ofColor(0,0));
+		param->setMax(ofColor(255,255));
+		group->add(*param);
 	}
 }
