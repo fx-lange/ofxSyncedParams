@@ -241,19 +241,14 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 }
 
 ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
-	ofParameterGroup * groupOwner = new ofParameterGroup();
-//	//TODO needs refactoring! don't like it and memory leak ...
+	rootGroup = new ofParameterGroup();
 
 	std::string rootName = jsonInit.getMemberNames()[0];
-	ofParameterGroup subGroup;
-	subGroup.setName(rootName);
-	unfurl(jsonInit[rootName],subGroup);
-	groupOwner->add(subGroup);
+	rootGroup->setName(rootName);
+	unfurl(jsonInit[rootName],*rootGroup);
 
 	ofxGuiGroup * group = new ofxGuiGroup();
-	group->setup((ofParameterGroup&)groupOwner->get(0));
-	rootGroup = &(ofParameterGroup&)group->getParameter();
-	//TODO same here - pointer <-> reference madness
+	group->setup(*rootGroup);
 
 	ofAddListener(rootGroup->parameterChangedE(),this,&ofxSyncedParams::parameterChanged);
 
