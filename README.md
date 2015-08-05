@@ -25,7 +25,7 @@ Dependencies
 ------------
 * ofxLibwebsockets
 * ofxJSON
-* current openFrameworks master ~0.9.0 (27 July 2015). It won't work with oF 0.8.4 even if it would compile. Let me know if you need a 0.8.4 version.
+* current openFrameworks master ~0.9.0 (5 August 2015). It won't work with oF 0.8.4 even if it would compile. Let me know if you need a 0.8.4 version.
 
 Credits
 --------
