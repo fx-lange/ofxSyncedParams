@@ -66,13 +66,13 @@ void ofxSyncedParams::updateParamFromJson(ofxJSONElement json){
 
 	if(type==typeid(ofParameter<float>).name()){
 		ofParameter<float> & p = param.cast<float>();
-		p = json["value"].asFloat();
+		p.set(json["value"].asFloat());
 	}else if(type==typeid(ofParameter<int>).name()){
 		ofParameter<int> & p = param.cast<int>();
-		p = json["value"].asInt();
+		p.set(json["value"].asInt());
 	}else if(type==typeid(ofParameter<bool>).name()){
 		ofParameter<bool> & p = param.cast<bool>();
-		p = json["value"].asBool();
+		p.set(json["value"].asBool());
 	}
 	else if(type==typeid(ofParameter<ofColor>).name()){
 		ofParameter<ofColor> p = param.cast<ofColor>();
@@ -242,8 +242,13 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 
 ofxGuiGroup * ofxSyncedParams::setupFromJson(Json::Value & jsonInit){
 	ofParameterGroup * groupOwner = new ofParameterGroup();
-	//TODO needs refactoring! don't like it and memory leak ...
-	unfurl(jsonInit,*groupOwner);
+//	//TODO needs refactoring! don't like it and memory leak ...
+
+	std::string rootName = jsonInit.getMemberNames()[0];
+	ofParameterGroup subGroup;
+	subGroup.setName(rootName);
+	unfurl(jsonInit[rootName],subGroup);
+	groupOwner->add(subGroup);
 
 	ofxGuiGroup * group = new ofxGuiGroup();
 	group->setup((ofParameterGroup&)groupOwner->get(0));
@@ -262,16 +267,16 @@ void ofxSyncedParams::unfurl(Json::Value & obj, ofParameterGroup & parentGroup){
 		a second loop (outer) is needed to find the members in the right order,
 		because many c++ json implementation don't keep track of the insertion order. */
 
-	std::vector<std::string> members = obj.getMemberNames();
+	std::vector<std::string> members = obj["members"].getMemberNames();
 	for(int i=0;i<(int)members.size();++i){
 		for(size_t k=0;k<members.size();++k){
 
 			std::string objName = members[k];
-			Json::Value subObj = obj.get(objName,"");
+			Json::Value subObj = obj["members"].get(objName,"");
 			if(subObj["orderIdx"].asInt()!= i)
 				continue;
 
-			if(subObj.isObject() && subObj.isMember("type")){ //is leaf?
+			if(subObj.isObject() && !subObj.isMember("members")){ //is leaf?
 				//add to group
 				addToGroup(objName,subObj,parentGroup);
 			}else{
