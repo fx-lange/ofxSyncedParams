@@ -12,28 +12,7 @@ $(document).ready( function() {
 
 	messageDiv = document.getElementById("messages");
 	statusDiv = document.getElementById("status");
-
-	//setup message sending button
-	message = document.getElementById("message");
-	button = document.getElementById("button");
-
-	// send the form when you press enter 
-	// or when you press the button
-	button.onclick = function(e){
-		sendMessageForm();
-	};
-	$("#message").keyup(function(event){
-    	if(event.keyCode == 13){
-    		sendMessageForm()
-    	}
-    })
 });
-
-// send value from text input
-function sendMessageForm(){
-	/*socket.send(message.value);
-	message.value = "";*/
-}
 
 // setup web socket
 function setupSocket(){

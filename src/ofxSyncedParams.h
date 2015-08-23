@@ -11,6 +11,7 @@
 
 //TODO save settings via remote, 0.8.4 version possible?, two classes remote vs. client
 //TODO p5 js example, combine with ofParam example, simplify datGui parser
+//TODO memory leak? params are created by ofxSyncedParams if setupFromJson is used
 
 class ofxSyncedParams {
 public:

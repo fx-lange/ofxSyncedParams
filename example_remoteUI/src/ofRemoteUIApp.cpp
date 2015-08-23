@@ -69,7 +69,7 @@ void ofRemoteUIApp::update(){
 
 //--------------------------------------------------------------
 void ofRemoteUIApp::draw(){
-    ofDrawBitmapString("press Return to synchronize with your client - if connected", 10,20);
+    ofDrawBitmapString("Press Return to synchronize with your client.", 10,20);
     ofDrawBitmapString(client.isConnected() ? "Client is connected" : "Client disconnected :(", 10,50);
     if(bDrawGui){
     	gui.draw();

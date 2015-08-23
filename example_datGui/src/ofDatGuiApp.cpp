@@ -10,6 +10,7 @@ ofxJSONElement paramUpdate;
 //--------------------------------------------------------------
 void ofDatGuiApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
+	ofSetBackgroundColor(0);
 
 	//create GUI group
 	gui.setup("gui","settings.xml",50,50);
@@ -68,6 +69,8 @@ void ofDatGuiApp::update() {
 
 //--------------------------------------------------------------
 void ofDatGuiApp::draw() {
+	ofSetColor(255);
+    ofDrawBitmapString("Press Return to start the web UI.", 10,20);
 	gui.draw();
 }
 
