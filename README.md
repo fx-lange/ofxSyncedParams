@@ -23,8 +23,9 @@ Best contact me in advance - happy to support.
 
 Dependencies
 ------------
-* ofxLibwebsockets
-* ofxJSON
+* ofxGui (oF core addon)
+* [ofxJSON](https://github.com/jefftimesten/ofxJSON)
+* [ofxLibwebsockets](https://github.com/labatrockwell/ofxLibwebsockets) and remove libs/jsoncpp (already part of ofxJSON)
 * current openFrameworks master ~0.9.0 (5 August 2015). It won't work with oF 0.8.4 even if it would compile. Let me know if you need a 0.8.4 version.
 
 Credits
