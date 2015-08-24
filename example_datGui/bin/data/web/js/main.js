@@ -2,8 +2,6 @@ var socket;
 
 var messageDiv;
 var statusDiv;
-var button;
-var textField;
 
 $(document).ready( function() {
 	
@@ -18,17 +16,8 @@ $(document).ready( function() {
 function setupSocket(){
 
 	// setup websocket
-	// get_appropriate_ws_url is a nifty function by the libwebsockets people
-	// it decides what the websocket url is based on the broswer url
-	// e.g. https://mygreathost:9099 = wss://mygreathost:9099
+	socket = new WebSocket(get_appropriate_ws_url());
 
-	// if (BrowserDetect.browser == "Firefox") {
-	// 	socket = new MozWebSocket(get_appropriate_ws_url());
-	// } else {
-		socket = new WebSocket(get_appropriate_ws_url());
-		//socket = new WebSocket("ws://localhost:9092");
-	// }
-	
 	// open
 	try {
 		socket.onopen = function() {
@@ -40,7 +29,7 @@ function setupSocket(){
 		socket.onmessage =function got_packet(msg) {
 			messageDiv.innerHTML = msg.data + "<br />" + messageDiv.innerHTML;
 			// console.log(msg.data);
-			initGui(msg.data);
+			śyncGui(msg.data);
 		}
 
 		socket.onclose = function(){

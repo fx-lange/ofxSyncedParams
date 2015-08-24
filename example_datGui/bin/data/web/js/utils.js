@@ -122,6 +122,9 @@ BrowserDetect.init();
 
 	var pos = 0;
 
+// get_appropriate_ws_url is a nifty function by the libwebsockets people
+// it decides what the websocket url is based on the broswer url
+// e.g. https://mygreathost:9099 = wss://mygreathost:9099
 function get_appropriate_ws_url()
 {
 	var pcol;
