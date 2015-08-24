@@ -23,6 +23,8 @@ function setupSocket(){
 		socket.onopen = function() {
 			statusDiv.style.backgroundColor = "#40ff40";
 			statusDiv.textContent = " websocket connection opened ";
+			var myJson = {type:"initRequest"};	
+			socket.send(JSON.stringify(myJson));
 		} 
 
 		// received message

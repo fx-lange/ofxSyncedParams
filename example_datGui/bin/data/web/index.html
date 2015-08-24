@@ -17,12 +17,6 @@
 
 	$(document).ready( function() {
 		setupSocket(); //main.js
-		
-		setTimeout(function(){
-			//init request after 3 seconds
-			var myJson = {type:"initRequest"};	
-			socket.send(JSON.stringify(myJson));
-		}, 3000);
 	});
 
 </script>
