@@ -198,7 +198,7 @@ void ofxSyncedParams::parameterChanged( ofAbstractParameter & parameter ){
 	vector<string> treeHierarchy = parameter.getGroupHierarchyNames();
 	list<string> hierarchy;
 	//walk from first parent [size()-2] to rootGroup [-2 because paramName is also part of the hierarchy]
-	for(size_t i=treeHierarchy.size()-2;i>=0; --i){ //
+	for(int i=treeHierarchy.size()-2;i>=0; --i){ //
 		string & groupName = treeHierarchy[i];
 		hierarchy.push_front(groupName);
 		if(groupName == rootGroup->getName()){
